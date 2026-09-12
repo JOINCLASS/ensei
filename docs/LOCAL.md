@@ -113,6 +113,38 @@ npm run prod:check      # ログイン・登録・保存・現地時刻を通し
 npm run prod:security   # RLS への攻撃20種
 ```
 
+## ログイン状態の確認
+
+```bash
+npm run session   # Cookie の属性・ブラウザ再起動・トークン更新・ログアウト
+```
+
+セッションは **Cookie のみ**に入る（localStorage は使わない）。
+`proxy.ts` が毎リクエスト `getUser()` を呼んでトークンを更新するので、
+アクセストークンの期限（1時間）が切れても締め出されない。
+
+Cookie は 400日。`secure` は本番だけ付く（localhost は http のため）。
+`httpOnly` は付けられない — `createBrowserClient` が `document.cookie` で
+読み書きするため、付けるとブラウザ側からセッションが読めなくなり、
+`lib/db.ts` のDB操作が動かなくなる。
+
+### iOS の Safari で確かめる
+
+iOS の ITP は **JavaScript が書いた Cookie を7日で消す**ことがある。
+`proxy.ts` がサーバーから `Set-Cookie` で書き直しているので回避できている
+はずだが、実機で見ないと確証はない。
+
+1. Safari で本番URLを開いてログイン
+2. 共有 → ホーム画面に追加
+3. Safari を完全に終了し、ホーム画面のアイコンから起動
+   （iOS ではPWAとSafariでCookieの保管庫が別。ここで再ログインを求められたら、
+     PWAの中でログインし直してから以降を確認する）
+4. iPhone を再起動して、もう一度アイコンから起動
+5. **1週間後にもう一度開く** ← ITP の本番の確認はここ
+
+5で切れるようなら、書き込みを Server Actions に移して
+サーバーから Cookie を書く形にする必要がある。
+
 どちらも `.env.local` の `SUPABASE_SECRET`（Supabaseの秘密鍵）を使う。
 `prod:check` はメールを送らず、管理APIでコードを作って検証する。
 

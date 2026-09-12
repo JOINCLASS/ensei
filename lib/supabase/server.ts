@@ -1,6 +1,7 @@
 import { cookies } from 'next/headers'
 import { createServerClient } from '@supabase/ssr'
 import type { Database } from '@/lib/database.types'
+import { cookieOptions } from './cookies'
 
 export async function createClient() {
   const cookieStore = await cookies()
@@ -8,6 +9,7 @@ export async function createClient() {
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
+      cookieOptions,
       cookies: {
         getAll: () => cookieStore.getAll(),
         setAll(list) {

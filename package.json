@@ -12,13 +12,14 @@
     "icons": "node scripts/make-icons.mjs",
     "code": "node --env-file=.env.local scripts/code.mjs",
     "sample": "node scripts/sample.mjs",
-    "e2e": "npm run verify && npm run behaviour && npm run sample && npm run walkthrough && npm run walkthrough2",
+    "e2e": "npm run verify && npm run behaviour && npm run sample && npm run walkthrough && npm run walkthrough2 && npm run session",
     "video": "bash scripts/videos-to-mp4.sh",
     "walkthrough": "node scripts/walkthrough.mjs",
     "walkthrough2": "node scripts/walkthrough2.mjs",
     "security": "node --env-file=.env.local scripts/security.mjs",
     "prod:check": "node --env-file=.env.local scripts/prod-check.mjs",
-    "prod:security": "node --env-file=.env.local scripts/security.mjs"
+    "prod:security": "node --env-file=.env.local scripts/security.mjs",
+    "session": "node scripts/session.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.7",
