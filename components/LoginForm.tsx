@@ -97,7 +97,7 @@ export function LoginForm() {
       const notRegistered = /signup|not found|disabled/i.test(error.message)
       return setErr(
         notRegistered
-          ? 'このメールアドレスは登録されていません。'
+          ? 'このメールアドレスは登録されていません。招待を受けとったアドレスをお確かめください。'
           : 'コードを送れませんでした。もう一度お試しください。',
       )
     }
@@ -133,7 +133,7 @@ export function LoginForm() {
       <section className="empty">
         {step === 'email' ? (
           <>
-            <p>このアプリにパスワードはありません。<br />メールに届く6桁のコードで、<br />ログインします。</p>
+            <p>このアプリは招待制です。<br />パスワードはありません。<br />登録されたメールアドレスに、<br />6桁のコードをお送りします。</p>
             <label className="field" style={{ textAlign: 'left' }}>
               <span>メールアドレス</span>
               <input
