@@ -48,8 +48,12 @@ export function ItemSheet({
     if (shows('arr')) d.arr = arr.trim()
     if (shows('hotel')) { d.checkIn = checkIn.trim(); d.checkOut = checkOut.trim() }
     setSaving(true)
-    await onSave(d)
-    setSaving(false)
+    try {
+      await onSave(d)
+    } finally {
+      // 失敗しても「保存しています…」のまま固まらせない
+      setSaving(false)
+    }
   }
 
   return (

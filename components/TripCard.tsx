@@ -10,6 +10,8 @@ export function TripCard({ trip, past }: { trip: Trip; past: boolean }) {
   const router = useRouter()
   // 詳細が出るまで1秒以上かかる。押した瞬間に薄くして「受け付けた」と分かるようにする。
   // 濃さは終わった旅と同じ 0.55（新しい見た目を持ち込まない）。
+  // disabled は付けない。遷移が中断されると押せないまま固まるため。
+  // 同じ旅を二度開いても実害はない。
   const [opening, startOpening] = useTransition()
   const s = stats(trip)
   const n = nights(trip.start, trip.end)
@@ -24,7 +26,6 @@ export function TripCard({ trip, past }: { trip: Trip; past: boolean }) {
     <button
       className={`ticket${past ? ' past' : ''}`}
       style={{ ...oshiStyle(trip.color), ...(opening ? { opacity: 0.55 } : null) }}
-      disabled={opening}
       onClick={() => startOpening(() => router.push(`/trips/${trip.id}`))}
       aria-label={`${trip.title}、${range}。まだの手配${s.todo}件`}
     >

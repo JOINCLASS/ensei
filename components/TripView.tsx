@@ -11,6 +11,15 @@ import { TripSheet, type TripDraft } from './TripSheet'
 
 type Sheet = { kind: 'trip' } | { kind: 'item'; item: Item | null } | null
 
+/**
+ * この画面では router.refresh() を呼ばない。
+ * 変更は手元の状態に先に反映しており、一覧へ戻ったときは
+ * サーバーで描き直されるので、追加の再描画は要らない。
+ *
+ * 不要な再描画は速度を落とすだけでなく、書き込み直後に走ると
+ * 認証確認が一瞬こけて「ログイン画面が見える」原因にもなっていた。
+ */
+
 /** 参照HTMLの renderTrip() */
 export function TripView({ initialTrip }: { initialTrip: Trip }) {
   const router = useRouter()
@@ -35,7 +44,6 @@ export function TripView({ initialTrip }: { initialTrip: Trip }) {
     btn.classList.add('pop')
     try {
       await setItemStatus(item.id, next)
-      router.refresh()
     } catch {
       setTrip((t) => ({ ...t, items: t.items.map((i) => (i.id === item.id ? item : i)) }))
       failed()
@@ -49,7 +57,6 @@ export function TripView({ initialTrip }: { initialTrip: Trip }) {
     try {
       await updateTrip(trip.id, d)
       toast('保存しました')
-      router.refresh()
     } catch {
       setTrip(before)
       failed()
@@ -61,7 +68,6 @@ export function TripView({ initialTrip }: { initialTrip: Trip }) {
       await deleteTrip(trip.id)
       setSheet(null)
       router.replace('/')
-      router.refresh()
       toast('旅を削除しました')
     } catch {
       failed()
@@ -82,7 +88,6 @@ export function TripView({ initialTrip }: { initialTrip: Trip }) {
         setTrip((t) => ({ ...t, items: [...t.items, created] }))
         toast('手配を追加しました')
       }
-      router.refresh()
     } catch {
       setTrip(before)
       failed()
@@ -96,7 +101,6 @@ export function TripView({ initialTrip }: { initialTrip: Trip }) {
     try {
       await deleteItem(id)
       toast('手配を削除しました')
-      router.refresh()
     } catch {
       setTrip(before)
       failed()
@@ -109,7 +113,6 @@ export function TripView({ initialTrip }: { initialTrip: Trip }) {
         <button
           className="linkbtn"
           style={leaving ? { opacity: 0.55 } : undefined}
-          disabled={leaving}
           onClick={() => startLeaving(() => router.push('/'))}
         >
           ‹ 一覧にもどる

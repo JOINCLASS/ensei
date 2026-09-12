@@ -23,3 +23,20 @@ export async function createClient() {
     },
   )
 }
+
+/**
+ * ログイン中の人を取る。
+ *
+ * getUser() は Supabase へ問い合わせるので、混んでいると失敗しうる。
+ * 失敗を「ログインしていない」と見なすと、書き込み直後などに
+ * 一瞬ログイン画面へ飛ばしてしまう。通信都合の失敗は一度だけやり直す。
+ */
+export async function getUser(supabase: Awaited<ReturnType<typeof createClient>>) {
+  for (let i = 0; i < 2; i++) {
+    const { data, error } = await supabase.auth.getUser()
+    if (data.user) return data.user
+    // セッションが無いのが確実なときは、やり直さずにそのまま返す
+    if (!error || error.name !== 'AuthRetryableFetchError') return null
+  }
+  return null
+}

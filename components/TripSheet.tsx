@@ -38,8 +38,12 @@ export function TripSheet({
     if (e < s) return setErr('帰る日は、出発する日と同じか後の日にしてください。')
     // 押してから画面が変わるまで1秒以上かかる。無反応だと二度押しを誘う。
     setSaving(true)
-    await onSave({ title: t, place: place.trim(), start: s, end: e, color, memo: memo.trim() })
-    setSaving(false)
+    try {
+      await onSave({ title: t, place: place.trim(), start: s, end: e, color, memo: memo.trim() })
+    } finally {
+      // 失敗しても「保存しています…」のまま固まらせない
+      setSaving(false)
+    }
   }
 
   return (

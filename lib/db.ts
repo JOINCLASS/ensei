@@ -105,16 +105,41 @@ export async function clearSample() {
 /**
  * サンプルを入れる。旅を作るとトリガが4項目を作るので、
  * 足すのではなく、出来た4項目を種類で突き合わせて中身を書き込む。
+ *
+ * 1件ずつ送ると25回の往復になり、2秒近くかかっていた。まとめて送る。
  */
 export async function insertSample(): Promise<Trip[]> {
-  const out: Trip[] = []
-  for (const { items, ...trip } of sampleTrips()) {
-    const created = await createTrip(trip, true)
-    for (const item of items) {
-      const target = created.items.find((i) => i.type === item.type)
-      if (target) await updateItem(target.id, { ...target, ...item } as ItemDraft)
-    }
-    out.push(created)
-  }
+  const samples = sampleTrips()
+
+  // ① 旅をまとめて作る（トリガが各旅に4項目を作る）
+  const made = check(
+    await db()
+      .from('trips')
+      .insert(samples.map(({ items, ...t }) => ({ ...tripFields(t), is_sample: true })))
+      .select('id'),
+  )
+
+  // ② 出来た4項目をまとめて取る
+  const rows = check(
+    await db().from('trips').select(TRIP_SELECT).in('id', made.map((r) => r.id)),
+  )
+
+  // ③ 種類で突き合わせて、まとめて書き込む
+  const updates = rows.flatMap((row) => {
+    const sample = samples.find((s) => s.title === row.title)
+    if (!sample) return []
+    return (row.arrangements ?? []).flatMap((a) => {
+      const want = sample.items.find((i) => i.type === a.type)
+      if (!want) return []
+      return [{
+        id: a.id,
+        trip_id: row.id,
+        position: a.position,
+        ...itemFields({ ...toItem(a), ...want } as ItemDraft),
+      }]
+    })
+  })
+  if (updates.length) check(await db().from('arrangements').upsert(updates).select('id'))
+
   return fetchTrips()
 }

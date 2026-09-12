@@ -42,8 +42,10 @@ export function ListView({ initialTrips }: { initialTrips: Trip[] }) {
     if (busy) return
     setBusy(true)
     try {
+      // insertSample() が入れ直したあとの全件を返すので、手元のデータで足りる。
+      // ここで router.refresh() を呼ぶとサーバー再描画が走り、
+      // 直前の25回の書き込みと重なって一瞬ログイン画面が見えることがあった。
       setTrips(await insertSample())
-      router.refresh()
     } catch {
       toast('保存できませんでした。もう一度お試しください')
     }
@@ -56,7 +58,6 @@ export function ListView({ initialTrips }: { initialTrips: Trip[] }) {
     try {
       await clearSample()
       setTrips((all) => all.filter((t) => !t.isSample))
-      router.refresh()
     } catch {
       toast('保存できませんでした。もう一度お試しください')
     }
