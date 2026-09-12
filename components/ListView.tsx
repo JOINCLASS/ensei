@@ -72,7 +72,7 @@ export function ListView({ initialTrips }: { initialTrips: Trip[] }) {
 
   const head = (
     <header className="top">
-      <h1>遠征の手配</h1>
+      <h1>手配まとめ</h1>
       {trips.length > 0 && (
         <button className="btn" onClick={() => setSheet(true)}>＋ 旅を追加</button>
       )}

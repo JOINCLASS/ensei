@@ -88,7 +88,7 @@ supabase db push
 
 | | |
 |---|---|
-| アプリ | https://tehai-matome.vercel.app （Vercel `githubkyos-projects/ensei`） |
+| アプリ | https://tehaimatome.com （Vercel `githubkyos-projects/ensei`） |
 | Supabase | `qxyubrqtelvciwoszjlc`（東京 ap-northeast-1） |
 | メール | Resend（送信専用キー `supabase-auth-ensei`） |
 

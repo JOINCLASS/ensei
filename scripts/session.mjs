@@ -46,7 +46,7 @@ const page2 = await ctx2.newPage()
 await page2.goto(`${APP}/`)
 await page2.waitForTimeout(1500)
 ok(!page2.url().endsWith('/login'), 'ログインが保たれている')
-ok((await page2.content()).includes('遠征の手配'), 'サーバーコンポーネントがユーザーを取得できている')
+ok((await page2.content()).includes('手配まとめ'), 'サーバーコンポーネントがユーザーを取得できている')
 
 step('[アクセストークンの期限が切れた後]')
 const dec = (v) => JSON.parse(Buffer.from(v.replace(/^base64-/, ''), 'base64url').toString())

@@ -15,6 +15,13 @@ const log = (...a) => console.log(...a)
 /* ---------- 3画面を撮る ---------- */
 async function shoot(page, tag, click) {
   const out = {}
+  // 参照HTMLの見出しは「遠征の手配」のまま。アプリ名だけ後から
+  // 「手配まとめ」に変えたので、撮る前に文字だけ合わせる。
+  // ここで比べたいのは配置と見た目であって、名前ではない。
+  await page.evaluate(() => {
+    const h = document.querySelector('.top h1')
+    if (h && h.textContent === '遠征の手配') h.textContent = '手配まとめ'
+  })
   await page.waitForTimeout(600)
   out.list = `shots/${tag}-list.png`
   await page.screenshot({ path: out.list })

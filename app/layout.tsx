@@ -13,9 +13,9 @@ const zenMaru = Zen_Maru_Gothic({
 })
 
 export const metadata: Metadata = {
-  title: '遠征の手配',
+  title: '手配まとめ',
   manifest: '/manifest.webmanifest',
-  appleWebApp: { capable: true, title: '遠征の手配', statusBarStyle: 'default' },
+  appleWebApp: { capable: true, title: '手配まとめ', statusBarStyle: 'default' },
 }
 
 export const viewport: Viewport = {

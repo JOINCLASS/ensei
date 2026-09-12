@@ -21,7 +21,7 @@ export default async function Page({ params }: { params: Promise<{ code: string 
   if (state !== 'ok') {
     return (
       <>
-        <header className="top"><h1>遠征の手配</h1></header>
+        <header className="top"><h1>手配まとめ</h1></header>
         <section className="empty">
           <p>{MESSAGE[state]}<br />招待した人に、もう一度<br />リンクを出してもらってください。</p>
         </section>

@@ -213,11 +213,11 @@ otp_expiry = 3600
 
 # ログインのワンタイムコードをメール本文に出す（既定のテンプレートはリンクだけで、コードが載らない）
 [auth.email.template.magic_link]
-subject = "遠征の手配 ログインコード"
+subject = "手配まとめ ログインコード"
 content_path = "./supabase/templates/magic_link.html"
 
 [auth.email.template.confirmation]
-subject = "遠征の手配 ログインコード"
+subject = "手配まとめ ログインコード"
 content_path = "./supabase/templates/confirmation.html"
 
 # Use a production-ready SMTP server
@@ -352,9 +352,13 @@ project_id = "qxyubrqtelvciwoszjlc"
 # あちらは「メール認証そのもの」を切る設定で、既存ユーザーもログインできなくなる。
 
 # 本番のアプリのURL。ローカル開発用の値を持ち込まない。
-site_url = "https://tehai-matome.vercel.app"
-# 旧URL（ensei-nu）も当分は生かしておく。すでに配ったリンクを死なせないため。
-additional_redirect_urls = ["https://tehai-matome.vercel.app", "https://ensei-nu.vercel.app"]
+site_url = "https://tehaimatome.com"
+# 旧URLも当分は生かしておく。すでに配ったリンクを死なせないため。
+additional_redirect_urls = [
+  "https://tehaimatome.com",
+  "https://tehai-matome.vercel.app",
+  "https://ensei-nu.vercel.app",
+]
 
 [remotes.production.auth.rate_limit]
 # Supabase標準の送信を使う場合の既定は2通/時だが、
@@ -372,35 +376,30 @@ otp_length = 6
 
 # 認証メールに6桁コードを載せる。既定のテンプレートはリンクだけでコードが載らない。
 [remotes.production.auth.email.template.magic_link]
-subject = "遠征の手配 ログインコード"
+subject = "手配まとめ ログインコード"
 content_path = "./supabase/templates/magic_link.html"
 
 [remotes.production.auth.email.template.confirmation]
-subject = "遠征の手配 ログインコード"
+subject = "手配まとめ ログインコード"
 content_path = "./supabase/templates/confirmation.html"
 
 # ダッシュボードの Authentication → Users → Invite user から送られるメール。
 # リンクを踏むとそのままログインした状態でアプリが開く（コードの入力は要らない）。
 [remotes.production.auth.email.template.invite]
-subject = "遠征の手配をはじめられます"
+subject = "手配まとめをはじめられます"
 content_path = "./supabase/templates/invite.html"
 
 # Resend で送る。pass は環境変数から読むので、鍵はリポジトリに入らない。
 #
 # 送信元は Resend で認証済みのドメインでなければならない。
-# paspoy.com は認証済みで、SPF・DKIM とも通る構成になっている。
-#   DKIM        resend._domainkey.paspoy.com
-#   SPF         send.paspoy.com  v=spf1 include:amazonses.com ~all
-#   Return-Path send.paspoy.com  MX feedback-smtp.us-east-1.amazonses.com
-#
-# joinclass.jp を使いたい場合は、.jp レジストリが指名している
-# ns-rs1/ns-rs2.gmoserver.jp のゾーンに Resend のレコードを入れる必要がある
-# （01〜04.dnsv.jp に入れても委任されていないので誰も見に来ない）。
+# tehaimatome.com はこのアプリ専用に取ったドメイン。
+#   DKIM  resend._domainkey.tehaimatome.com
+#   SPF   rsend.tehaimatome.com / send.tehaimatome.com（CNAME）
 [remotes.production.auth.email.smtp]
 enabled = true
 host = "smtp.resend.com"
 port = 465
 user = "resend"
 pass = "env(RESEND_API_KEY)"
-admin_email = "noreply@paspoy.com"
-sender_name = "遠征の手配"
+admin_email = "noreply@tehaimatome.com"
+sender_name = "手配まとめ"

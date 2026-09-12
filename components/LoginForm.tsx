@@ -174,7 +174,7 @@ export function LoginForm({ inviteCode }: { inviteCode?: string } = {}) {
 
   return (
     <>
-      <header className="top"><h1>遠征の手配</h1></header>
+      <header className="top"><h1>手配まとめ</h1></header>
 
       <p className="summary">これは見本です。ログインすると、あなたの旅がこんなふうに並びます。</p>
 
