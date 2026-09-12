@@ -19,7 +19,8 @@
     "security": "node --env-file=.env.local scripts/security.mjs",
     "prod:check": "node --env-file=.env.local scripts/prod-check.mjs",
     "prod:security": "node --env-file=.env.local scripts/security.mjs",
-    "session": "node scripts/session.mjs"
+    "session": "node scripts/session.mjs",
+    "prod:invite": "node --env-file=.env.local scripts/invite.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.7",

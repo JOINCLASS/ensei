@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { oshiStyle } from '@/lib/logic'
@@ -79,6 +79,46 @@ export function LoginForm() {
   const [code, setCode] = useState('')
   const [err, setErr] = useState('')
   const [busy, setBusy] = useState(false)
+
+  /**
+   * 招待リンクから来た場合の受け取り。
+   * Supabase の招待メールは、確認後に #access_token=... を付けてここへ戻してくる。
+   * URLの「#」以降はサーバーに送られないので、ブラウザ側で拾うしかない。
+   * 拾わないと「リンクを踏んだのにログイン画面が出る」行き止まりになる。
+   *
+   * detectSessionInUrl には任せられない。@supabase/ssr は PKCE 方式（?code=）で
+   * 動くため、招待リンクが返す「#」形式のトークンを受け付けない。
+   * 自分で読み取って setSession に渡す。
+   */
+  useEffect(() => {
+    const hash = window.location.hash
+    if (!hash || hash.length < 2) return
+    const params = new URLSearchParams(hash.slice(1))
+    const clean = () => window.history.replaceState(null, '', window.location.pathname)
+
+    const problem = params.get('error_description') || params.get('error')
+    if (problem) {
+      clean()
+      return setErr('招待の期限が切れているようです。下のメールアドレスからコードをお送りします。')
+    }
+
+    const access_token = params.get('access_token')
+    const refresh_token = params.get('refresh_token')
+    if (!access_token || !refresh_token) return
+
+    setBusy(true)
+    createClient()
+      .auth.setSession({ access_token, refresh_token })
+      .then(({ data, error }) => {
+        clean()
+        if (error || !data.session) {
+          setBusy(false)
+          return setErr('招待の確認に失敗しました。メールアドレスを入れてコードを受け取ってください。')
+        }
+        router.replace('/')
+        router.refresh()
+      })
+  }, [router])
 
   async function sendCode() {
     const value = email.trim()

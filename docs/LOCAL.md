@@ -160,11 +160,34 @@ iOS の ITP は **JavaScript が書いた Cookie を7日で消す**ことがあ�
 （お名前.com レンタルサーバーのコントロールパネル）に入れること。
 
 ## いまの制約
-- **新規登録は閉じている**（`auth.enable_signup = false`）。
-  人を増やすときは Authentication → Users → Invite から招待する。
-  招待したら **確認済み（email_confirm）になっているか**を必ず見ること。
-  未確認のままだと、登録を閉じている環境では本人もログインできない
+- **新規登録は閉じている**（`auth.enable_signup = false`）。アプリ内に招待機能はない。
+  人を増やすときは Supabase ダッシュボードの
+  **Authentication → Users → Invite user** から招待する
 - アプリ側は `shouldCreateUser: false` で送る。true にすると、
   既存ユーザーでも「登録しようとした」と見なされて弾かれる
 - legacy の anon / service_role キーは無効化済み。
   新しい publishable / secret キーだけを使うこと
+
+## 招待について
+
+アプリの画面に招待機能はない。**Supabase ダッシュボードから招待する。**
+
+Authentication → Users → **Invite user** → メールアドレスを入れる
+
+招待された人は、届いたメールのリンクを踏むだけで確認済みになり、
+そのままログインした状態でアプリが開く。コードの入力は要らない。
+
+```bash
+npm run prod:invite   # 招待の流れを通しで確かめる（メールは送らない）
+```
+
+### 注意：招待リンクは「#」でトークンを返す
+
+`/auth/v1/verify` からの戻りは `#access_token=...` という形式で、
+URLの「#」以降はサーバーに届かない。**ブラウザ側で拾う必要がある。**
+
+`@supabase/ssr` は PKCE 方式（`?code=`）で動くため、`detectSessionInUrl`
+には任せられない（この形式を受け付けない）。`components/LoginForm.tsx` で
+フラグメントを自分で読み、`setSession()` に渡している。
+
+これを外すと「リンクを踏んだのにログイン画面が出る」行き止まりに戻る。
