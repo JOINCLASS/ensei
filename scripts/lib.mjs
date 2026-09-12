@@ -45,7 +45,27 @@ export async function codeFor(email) {
  */
 export const tap = (page, name) => page.getByRole('button', { name, exact: true }).click()
 
+/**
+ * 検証用のユーザーを作る。新規登録は閉じてあるので、アプリからは作れない。
+ * 本番と同じ構成でテストするための下ごしらえ。
+ */
+export async function createUser(email) {
+  const { execSync } = await import('node:child_process')
+  const out = execSync('supabase status -o json', { encoding: 'utf8' })
+  const st = JSON.parse(out.slice(out.indexOf('{')))
+  await fetch(`${st.API_URL}/auth/v1/admin/users`, {
+    method: 'POST',
+    headers: {
+      apikey: st.SERVICE_ROLE_KEY,
+      Authorization: `Bearer ${st.SERVICE_ROLE_KEY}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ email, email_confirm: true }),
+  })
+}
+
 export async function login(page, email) {
+  await createUser(email)
   await page.goto(`${APP}/login`)
   await page.fill('input[name=email]', email)
   await tap(page, 'コードを送る')

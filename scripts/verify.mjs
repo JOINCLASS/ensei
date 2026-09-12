@@ -3,41 +3,14 @@ import { PNG } from 'pngjs'
 import pixelmatch from 'pixelmatch'
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs'
 import { pathToFileURL } from 'node:url'
-import { tap, VP, recordOpts, resetVideos, saveVideo } from './lib.mjs'
+import { tap, APP, VP, clearMail, login, recordOpts, resetVideos, saveVideo } from './lib.mjs'
 
-const APP = process.env.APP_URL || 'http://localhost:3001'
-const MAILPIT = 'http://127.0.0.1:54324'
 const REF = pathToFileURL(process.cwd() + '/design/ensei.html').href
 
 mkdirSync('shots', { recursive: true })
 resetVideos()
 const log = (...a) => console.log(...a)
 
-/* ---------- Mailpit から6桁コードを取る ---------- */
-const clearMail = () => fetch(`${MAILPIT}/api/v1/messages`, { method: 'DELETE' })
-
-async function codeFor(email) {
-  for (let i = 0; i < 30; i++) {
-    const list = await (await fetch(`${MAILPIT}/api/v1/messages`)).json()
-    const hit = list.messages?.find((m) => m.To?.some((t) => t.Address === email))
-    if (hit) {
-      const msg = await (await fetch(`${MAILPIT}/api/v1/message/${hit.ID}`)).json()
-      const code = (msg.Text || msg.HTML || '').match(/\b\d{6}\b/)
-      if (code) return code[0]
-    }
-    await new Promise((r) => setTimeout(r, 400))
-  }
-  throw new Error(`コードが届かない: ${email}`)
-}
-
-async function login(page, email) {
-  await page.goto(`${APP}/login`)
-  await page.fill('input[name=email]', email)
-  await tap(page, 'コードを送る')
-  await page.fill('input[name=code]', await codeFor(email))
-  await tap(page, 'ログインする')
-  await page.waitForURL(`${APP}/`, { timeout: 15000 })
-}
 
 /* ---------- 3画面を撮る ---------- */
 async function shoot(page, tag, click) {

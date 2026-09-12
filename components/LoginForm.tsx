@@ -85,12 +85,22 @@ export function LoginForm() {
     if (!value) return setErr('メールアドレスを入れてください。')
     setBusy(true)
     setErr('')
+    // 本番は新規登録を閉じている。shouldCreateUser を true にすると、
+    // 既に登録済みの人でも「登録しようとした」と見なされて弾かれる。
     const { error } = await createClient().auth.signInWithOtp({
       email: value,
-      options: { shouldCreateUser: true },
+      options: { shouldCreateUser: false },
     })
     setBusy(false)
-    if (error) return setErr('コードを送れませんでした。もう一度お試しください。')
+    if (error) {
+      // 未登録のアドレスと、それ以外の失敗を書き分ける
+      const notRegistered = /signup|not found|disabled/i.test(error.message)
+      return setErr(
+        notRegistered
+          ? 'このメールアドレスは登録されていません。'
+          : 'コードを送れませんでした。もう一度お試しください。',
+      )
+    }
     setStep('code')
   }
 

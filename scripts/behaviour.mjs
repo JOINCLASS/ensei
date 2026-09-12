@@ -1,8 +1,6 @@
 import { chromium } from '@playwright/test'
-import { tap, VP, recordOpts, saveVideo } from './lib.mjs'
+import { tap, APP, VP, clearMail, login, recordOpts, saveVideo } from './lib.mjs'
 
-const APP = process.env.APP_URL || 'http://localhost:3001'
-const MAILPIT = 'http://127.0.0.1:54324'
 const EMAIL = 'c@example.com'
 
 let pass = 0, fail = 0
@@ -11,19 +9,6 @@ const ok = (cond, msg, got) => {
   else { fail++; console.log(`  ✗ ${msg}${got !== undefined ? `  ← ${JSON.stringify(got)}` : ''}`) }
 }
 
-async function codeFor(email) {
-  for (let i = 0; i < 30; i++) {
-    const list = await (await fetch(`${MAILPIT}/api/v1/messages`)).json()
-    const hit = list.messages?.find((m) => m.To?.some((t) => t.Address === email))
-    if (hit) {
-      const msg = await (await fetch(`${MAILPIT}/api/v1/message/${hit.ID}`)).json()
-      const c = (msg.Text || msg.HTML || '').match(/\b\d{6}\b/)
-      if (c) return c[0]
-    }
-    await new Promise((r) => setTimeout(r, 400))
-  }
-  throw new Error('コードが届かない')
-}
 
 // ラジオは参照HTMLの設計どおり見えない位置にあるので、実ユーザーと同じくラベルを押す
 const pick = (page, name, value) =>
@@ -33,13 +18,8 @@ const browser = await chromium.launch()
 const ctx = await browser.newContext({ viewport: VP, ...recordOpts() })
 const page = await ctx.newPage()
 
-await fetch(`${MAILPIT}/api/v1/messages`, { method: 'DELETE' })
-await page.goto(`${APP}/login`)
-await page.fill('input[name=email]', EMAIL)
-await tap(page, 'コードを送る')
-await page.fill('input[name=code]', await codeFor(EMAIL))
-await tap(page, 'ログインする')
-await page.waitForURL(`${APP}/`)
+await clearMail()
+await login(page, EMAIL)
 
 /* ---------- 旅を追加 ---------- */
 console.log('\n[旅を追加]')

@@ -1,36 +1,16 @@
 import { chromium } from '@playwright/test'
-import { tap, VP, recordOpts, saveVideo } from './lib.mjs'
-const APP = process.env.APP_URL || 'http://localhost:3001'
-const MAILPIT = 'http://127.0.0.1:54324'
+import { tap, APP, VP, clearMail, login, recordOpts, saveVideo } from './lib.mjs'
 const EMAIL = 'sample@example.com'
 
 let pass = 0, fail = 0
 const ok = (c, m, g) => { c ? (pass++, console.log(`  ✓ ${m}`)) : (fail++, console.log(`  ✗ ${m}${g !== undefined ? `  ← ${JSON.stringify(g)}` : ''}`)) }
 
-async function code(email) {
-  for (let i = 0; i < 30; i++) {
-    const l = await (await fetch(`${MAILPIT}/api/v1/messages`)).json()
-    const h = l.messages?.find((m) => m.To?.some((t) => t.Address === email))
-    if (h) {
-      const m = await (await fetch(`${MAILPIT}/api/v1/message/${h.ID}`)).json()
-      const c = (m.Text || m.HTML || '').match(/\b\d{6}\b/)
-      if (c) return c[0]
-    }
-    await new Promise((r) => setTimeout(r, 400))
-  }
-  throw new Error('コードが届かない')
-}
 
 const b = await chromium.launch()
 const ctx = await b.newContext({ viewport: VP, ...recordOpts() })
 const p = await ctx.newPage()
-await fetch(`${MAILPIT}/api/v1/messages`, { method: 'DELETE' })
-await p.goto(`${APP}/login`)
-await p.fill('input[name=email]', EMAIL)
-await tap(p, 'コードを送る')
-await p.fill('input[name=code]', await code(EMAIL))
-await tap(p, 'ログインする')
-await p.waitForURL(`${APP}/`)
+await clearMail()
+await login(p, EMAIL)
 
 console.log('\n[サンプルを入れる]')
 ok(await p.locator('text=サンプルで見てみる').isVisible(), '空の画面に「サンプルで見てみる」がある')

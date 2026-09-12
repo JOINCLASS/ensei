@@ -147,8 +147,10 @@ enable_refresh_token_rotation = true
 # Allows refresh tokens to be reused after expiry, up to the specified interval in seconds.
 # Requires enable_refresh_token_rotation = true.
 refresh_token_reuse_interval = 10
-# Allow/disallow new user signups to your project.
-enable_signup = true
+# 新規登録を閉じる。本番と同じ設定にしておかないと、
+# 「本番でだけログインできない」類の不具合をE2Eが見逃す。
+# テストのユーザーは管理APIで作る（scripts/lib.mjs）。
+enable_signup = false
 # Allow/disallow anonymous sign-ins to your project.
 enable_anonymous_sign_ins = false
 # Allow/disallow testing manual linking of accounts
@@ -346,12 +348,8 @@ enabled = true
 project_id = "qxyubrqtelvciwoszjlc"
 
 [remotes.production.auth]
-# 勝手な新規登録を閉じる。既存ユーザーのログインはこれまでどおり。
-# 人を増やすときはダッシュボードの Authentication → Users → Invite から招待する。
-#
-# 注意：auth.email.enable_signup（1つ下の階層）ではない。
+# 注意：auth.email.enable_signup（1つ下の階層）と混同しないこと。
 # あちらは「メール認証そのもの」を切る設定で、既存ユーザーもログインできなくなる。
-enable_signup = false
 
 # 本番のアプリのURL。ローカル開発用の値を持ち込まない。
 site_url = "https://ensei-nu.vercel.app"
