@@ -91,6 +91,8 @@ export function ListView({ initialTrips }: { initialTrips: Trip[] }) {
       )}
       <button className="linkbtn" onClick={() => setInvite(true)}>友だちを招待</button>
       <br />
+      <button className="linkbtn" onClick={() => router.push('/about')}>このアプリについて</button>
+      <br />
       <button className="linkbtn" onClick={signOut}>ログアウト</button>
     </p>
   )

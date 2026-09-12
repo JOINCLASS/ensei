@@ -237,6 +237,10 @@ export function LoginForm({ inviteCode }: { inviteCode?: string } = {}) {
           </>
         )}
       </section>
+
+      <p className="note">
+        <button className="linkbtn" onClick={() => router.push('/about')}>このアプリについて</button>
+      </p>
     </>
   )
 }

@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { createInvite } from '@/lib/invites'
 import { toast } from '@/lib/toast'
 import { Sheet } from './Sheet'
@@ -10,7 +10,13 @@ export function InviteSheet({ onClose }: { onClose: () => void }) {
   const [url, setUrl] = useState('')
   const [err, setErr] = useState('')
 
+  // 開いたら1枚だけ発行する。
+  // React の開発モードでは useEffect が2回走るので、そのままだと
+  // 1回開くごとに2枚できてしまい、5枚の上限をすぐ使い切る。
+  const issued = useRef(false)
   useEffect(() => {
+    if (issued.current) return
+    issued.current = true
     createInvite(window.location.origin).then((r) => (r.error ? setErr(r.error) : setUrl(r.url!)))
   }, [])
 

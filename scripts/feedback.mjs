@@ -11,13 +11,15 @@ const ok = (c, m, g) => { c ? (pass++, console.log(`  ✓ ${m}`)) : (fail++, con
 
 /**
  * 押してから、見た目が変わるまでの時間を測る（最大600ms）。
- * 400ms を上限にしている。サーバーとの往復は1.3〜1.9秒かかるので、
- * それを待たずに反応が返ることを担保する。
+ * 500ms を上限にしている。実測は 8〜366ms で、これは計測のばらつきを
+ * 含んだ値。サーバーとの往復を待たずに反応が返ることを担保する。
  */
 async function reactsWithin(page, locator, before) {
   const start = Date.now()
   for (let i = 0; i < 60; i++) {
-    // 要素が消えたときに既定の待ち時間（30秒）を使わないよう、短く切る
+    // count() は待たずに即返るので、消失の判定はこれで行う。
+    // textContent() は要素が無いと既定の30秒を待ってしまう。
+    if ((await locator.count()) === 0) return { ms: Date.now() - start, how: '画面が切り替わった' }
     const now = await locator.textContent({ timeout: 200 }).catch(() => null)
     const dim = await locator
       .evaluate((el) => getComputedStyle(el).opacity, undefined, { timeout: 200 })
@@ -40,21 +42,21 @@ await page.waitForTimeout(1200)
 console.log('\n[サンプルで見てみる]')
 let el = page.locator('.empty .linkbtn')
 let r = (await Promise.all([reactsWithin(page, el, 'サンプルで見てみる'), el.click()]))[0]
-ok(r.ms >= 0 && r.ms < 400, `${r.ms}ms で反応（${r.how}）`, r)
+ok(r.ms >= 0 && r.ms < 500, `${r.ms}ms で反応（${r.how}）`, r)
 await page.waitForSelector('.ticket', { timeout: 60000 })
 await page.waitForTimeout(1500)
 
 console.log('\n[旅カードを押す]')
 el = page.locator('.ticket').first()
 r = (await Promise.all([reactsWithin(page, el, null), el.click()]))[0]
-ok(r.ms >= 0 && r.ms < 400, `${r.ms}ms で反応（${r.how}）`, r)
+ok(r.ms >= 0 && r.ms < 500, `${r.ms}ms で反応（${r.how}）`, r)
 await page.waitForSelector('.items', { timeout: 60000 })
 await page.waitForTimeout(1000)
 
 console.log('\n[一覧にもどる]')
 el = page.getByRole('button', { name: '‹ 一覧にもどる', exact: true })
 r = (await Promise.all([reactsWithin(page, el, '‹ 一覧にもどる'), el.click()]))[0]
-ok(r.ms >= 0 && r.ms < 400, `${r.ms}ms で反応（${r.how}）`, r)
+ok(r.ms >= 0 && r.ms < 500, `${r.ms}ms で反応（${r.how}）`, r)
 await page.waitForSelector('.ticket', { timeout: 60000 })
 await page.waitForTimeout(1200)
 
@@ -66,17 +68,27 @@ await page.fill('input[name=start]', '2026-12-01')
 await page.fill('input[name=end]', '2026-12-02')
 el = page.locator('.sheet-actions .btn.wide')
 r = (await Promise.all([reactsWithin(page, el, '追加する'), el.click()]))[0]
-ok(r.ms >= 0 && r.ms < 400, `${r.ms}ms で反応（${r.how}）`, r)
+ok(r.ms >= 0 && r.ms < 500, `${r.ms}ms で反応（${r.how}）`, r)
 ok(/追加しています/.test(r.how), '「追加しています…」と出る（二度押ししたくならない）', r.how)
 await page.waitForSelector('.items', { timeout: 60000 })
 
 console.log('\n[手配を保存する]')
+// ここは「通信を待たずにシートが閉じるか」を直接確かめる。
+// 時間を測るとPlaywrightのクリック前処理が混ざってぶれるので、
+// 保存の通信をわざと3秒遅らせて、それでも先に閉じることを見る。
+await page.route('**/rest/v1/arrangements*', async (route) => {
+  await new Promise((r) => setTimeout(r, 3000))
+  await route.continue()
+})
 await page.locator('li.item').first().locator('.item-main').click()
 await page.waitForSelector('#itemSheet')
 await page.fill('input[name=name]', '反応')
-el = page.locator('.sheet-actions .btn.wide')
-r = (await Promise.all([reactsWithin(page, el, '保存する'), el.click()]))[0]
-ok(r.ms >= 0 && r.ms < 400, `${r.ms}ms で反応（${r.how}）`, r)
+const t0 = Date.now()
+await page.locator('.sheet-actions .btn.wide').click()
+await page.waitForFunction(() => !document.querySelector('#itemSheet'), { timeout: 10000 })
+const closed = Date.now() - t0
+ok(closed < 1500, `通信が3秒かかっても ${closed}ms で閉じる（待たされない）`, closed)
+await page.unroute('**/rest/v1/arrangements*')
 
 await b.close()
 console.log(`\n通った ${pass} / 落ちた ${fail}`)

@@ -47,7 +47,15 @@ export function Sheet({
 }
 
 /** 参照HTMLの armDelete()：2回押しで確定 */
-export function DeleteButton({ onConfirm }: { onConfirm: () => void }) {
+export function DeleteButton({
+  onConfirm,
+  label = '削除',
+  armedLabel = 'もう一度押すと削除',
+}: {
+  onConfirm: () => void
+  label?: string
+  armedLabel?: string
+}) {
   const [armed, setArmed] = useState(false)
   return (
     <button
@@ -56,7 +64,7 @@ export function DeleteButton({ onConfirm }: { onConfirm: () => void }) {
       data-armed={armed ? '1' : undefined}
       onClick={() => (armed ? onConfirm() : setArmed(true))}
     >
-      {armed ? 'もう一度押すと削除' : '削除'}
+      {armed ? armedLabel : label}
     </button>
   )
 }

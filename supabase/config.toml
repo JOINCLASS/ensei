@@ -358,10 +358,11 @@ additional_redirect_urls = ["https://tehai-matome.vercel.app", "https://ensei-nu
 
 [remotes.production.auth.rate_limit]
 # Supabase標準の送信を使う場合の既定は2通/時だが、
-# 自前のSMTP（Resend・月3,000通）に切り替えたので現実的な値にする。
-# 新規登録を閉じたため、送信を起こせるのは既存ユーザーのアドレスだけ。
-# コードの打ち間違いで再送しても詰まらない程度に。
-email_sent = 30
+# 自前のSMTP（Resend）に切り替えたので現実的な値にする。
+# 新規登録は閉じてあり、送信を起こせるのは既存ユーザーと招待された人だけ。
+# 30だと、人に配ったときに11人目から弾かれるので上げてある。
+# 本当の上限は Resend の月3,000通（パスポイと共用）のほう。
+email_sent = 300
 
 [remotes.production.auth.email]
 # ローカルはE2Eのため1秒だが、本番は連打を防ぐため60秒

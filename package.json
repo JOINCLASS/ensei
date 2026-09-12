@@ -12,7 +12,7 @@
     "icons": "node scripts/make-icons.mjs",
     "code": "node --env-file=.env.local scripts/code.mjs",
     "sample": "node scripts/sample.mjs",
-    "e2e": "npm run verify && npm run behaviour && npm run sample && npm run walkthrough && npm run walkthrough2 && npm run session && npm run invite && npm run feedback",
+    "e2e": "npm run verify && npm run behaviour && npm run sample && npm run walkthrough && npm run walkthrough2 && npm run session && npm run invite && npm run account && npm run feedback",
     "video": "bash scripts/videos-to-mp4.sh",
     "walkthrough": "node scripts/walkthrough.mjs",
     "walkthrough2": "node scripts/walkthrough2.mjs",
@@ -22,7 +22,8 @@
     "session": "node scripts/session.mjs",
     "prod:invite": "node --env-file=.env.local scripts/invite.mjs",
     "invite": "node scripts/invite-link.mjs",
-    "feedback": "node scripts/feedback.mjs"
+    "feedback": "node scripts/feedback.mjs",
+    "account": "node scripts/account.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.7",
