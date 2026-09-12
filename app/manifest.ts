@@ -4,7 +4,7 @@ export default function manifest(): MetadataRoute.Manifest {
   return {
     name: '手配まとめ',
     short_name: '手配まとめ',
-    description: '遠征の手配を、どの旅の何がまだかでひと目で見られるようにする。',
+    description: '遠征の予定を、どの旅の何がまだかでひと目で見られるようにする。',
     lang: 'ja',
     start_url: '/',
     display: 'standalone',

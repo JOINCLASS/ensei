@@ -71,7 +71,7 @@ export function AboutView({ signedIn }: { signedIn: boolean }) {
 
       <section className="empty" style={{ textAlign: 'left' }}>
         <p style={{ textAlign: 'left' }}>
-          遠征の手配を、どの旅の何がまだかで<br />ひと目で見られるようにする道具です。
+          遠征の予定を、どの旅の何がまだかで<br />ひと目で見られるようにする道具です。
         </p>
       </section>
 
@@ -80,7 +80,26 @@ export function AboutView({ signedIn }: { signedIn: boolean }) {
         <p style={{ textAlign: 'left' }}>
           ・ログインに使うメールアドレス<br />
           ・入力した旅と手配の内容<br /><br />
-          パスワードは預かりません。ログインは、そのつどメールに届く6桁のコードで行います。
+          これだけです。名前も電話番号も要りません。<b>パスワードは預かりません。</b>
+        </p>
+      </section>
+
+      <p className="summary" style={{ marginTop: 24 }}><b>ログインのしかた</b></p>
+      <section className="empty" style={{ textAlign: 'left' }}>
+        <p style={{ textAlign: 'left' }}>
+          メールアドレスを入れると6桁のコードが届くので、それを入れてログインします。
+          パスワードを覚える必要はありません。
+        </p>
+        <p style={{ textAlign: 'left' }}>
+          <b>一度ログインすれば、ログアウトするまで入ったままです。</b>
+          毎回コードを受け取る必要はありません。
+        </p>
+        <p style={{ textAlign: 'left' }}>
+          コードが必要になるのは、次のときだけです。<br />
+          ・はじめて使うとき<br />
+          ・自分でログアウトしたとき<br />
+          ・別の端末やブラウザで開いたとき<br />
+          ・長く使わず、端末がログイン情報を消したとき
         </p>
       </section>
 
