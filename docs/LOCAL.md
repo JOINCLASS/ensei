@@ -148,11 +148,23 @@ iOS の ITP は **JavaScript が書いた Cookie を7日で消す**ことがあ�
 どちらも `.env.local` の `SUPABASE_SECRET`（Supabaseの秘密鍵）を使う。
 `prod:check` はメールを送らず、管理APIでコードを作って検証する。
 
-## いまの制約
+## メール
 
-- **メールは Resend アカウントの登録アドレス にしか届かない。** Resend で独自ドメインを
-  認証していないため。他の人に使ってもらうには DNS に SPF/DKIM が要る
+送信元は **`noreply@paspoy.com`**（Resend で認証済み）。誰にでも送れる。
+
+`joinclass.jp` を使おうとして詰まった経緯：
+`.jp` レジストリは `joinclass.jp` を **ns-rs1/ns-rs2.gmoserver.jp** に委任している。
+`01〜04.dnsv.jp`（`joinclass.co.jp` と `paspoy.com` の権威サーバー）に
+レコードを入れても、そこへは誰も聞きに来ないので Resend は見つけられない。
+`joinclass.jp` で送りたくなったら、gmoserver 側のゾーン
+（お名前.com レンタルサーバーのコントロールパネル）に入れること。
+
+## いまの制約
 - **新規登録は閉じている**（`auth.enable_signup = false`）。
-  人を増やすときは Authentication → Users → Invite から招待する
+  人を増やすときは Authentication → Users → Invite から招待する。
+  招待したら **確認済み（email_confirm）になっているか**を必ず見ること。
+  未確認のままだと、登録を閉じている環境では本人もログインできない
+- アプリ側は `shouldCreateUser: false` で送る。true にすると、
+  既存ユーザーでも「登録しようとした」と見なされて弾かれる
 - legacy の anon / service_role キーは無効化済み。
   新しい publishable / secret キーだけを使うこと

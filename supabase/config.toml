@@ -378,13 +378,21 @@ subject = "遠征の手配 ログインコード"
 content_path = "./supabase/templates/confirmation.html"
 
 # Resend で送る。pass は環境変数から読むので、鍵はリポジトリに入らない。
-# 送信元は Resend で認証したドメインのアドレスにすること。
-# 未認証のうちは onboarding@resend.dev が使えるが、Resend に登録した本人宛にしか届かない。
+#
+# 送信元は Resend で認証済みのドメインでなければならない。
+# paspoy.com は認証済みで、SPF・DKIM とも通る構成になっている。
+#   DKIM        resend._domainkey.paspoy.com
+#   SPF         send.paspoy.com  v=spf1 include:amazonses.com ~all
+#   Return-Path send.paspoy.com  MX feedback-smtp.us-east-1.amazonses.com
+#
+# joinclass.jp を使いたい場合は、.jp レジストリが指名している
+# ns-rs1/ns-rs2.gmoserver.jp のゾーンに Resend のレコードを入れる必要がある
+# （01〜04.dnsv.jp に入れても委任されていないので誰も見に来ない）。
 [remotes.production.auth.email.smtp]
 enabled = true
 host = "smtp.resend.com"
 port = 465
 user = "resend"
 pass = "env(RESEND_API_KEY)"
-admin_email = "onboarding@resend.dev"
+admin_email = "noreply@paspoy.com"
 sender_name = "遠征の手配"
