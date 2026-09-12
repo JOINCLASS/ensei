@@ -346,14 +346,23 @@ enabled = true
 project_id = "qxyubrqtelvciwoszjlc"
 
 [remotes.production.auth]
+# 勝手な新規登録を閉じる。既存ユーザーのログインはこれまでどおり。
+# 人を増やすときはダッシュボードの Authentication → Users → Invite から招待する。
+#
+# 注意：auth.email.enable_signup（1つ下の階層）ではない。
+# あちらは「メール認証そのもの」を切る設定で、既存ユーザーもログインできなくなる。
+enable_signup = false
+
 # 本番のアプリのURL。ローカル開発用の値を持ち込まない。
 site_url = "https://ensei-nu.vercel.app"
 additional_redirect_urls = ["https://ensei-nu.vercel.app"]
 
 [remotes.production.auth.rate_limit]
-# ローカルは100に緩めてあるが、本番は既定の2に戻す。
-# 緩めるとメール爆撃と送信費用の踏み台になる。
-email_sent = 2
+# Supabase標準の送信を使う場合の既定は2通/時だが、
+# 自前のSMTP（Resend・月3,000通）に切り替えたので現実的な値にする。
+# 新規登録を閉じたため、送信を起こせるのは既存ユーザーのアドレスだけ。
+# コードの打ち間違いで再送しても詰まらない程度に。
+email_sent = 30
 
 [remotes.production.auth.email]
 # ローカルはE2Eのため1秒だが、本番は連打を防ぐため60秒

@@ -23,8 +23,9 @@ const admin = (path, body, method = 'POST') =>
     ...(body ? { body: JSON.stringify(body) } : {}),
   })
 
-/** メールを送らずに6桁コードを作る */
+/** メールを送らずに6桁コードを作る。本番は新規登録を閉じているので、先に管理APIで作る。 */
 async function otpFor(email) {
+  await admin('/auth/v1/admin/users', { email, email_confirm: true })
   const r = await admin('/auth/v1/admin/generate_link', { type: 'magiclink', email })
   const j = await r.json()
   if (!j.email_otp) throw new Error('コードを作れない: ' + JSON.stringify(j).slice(0, 200))
