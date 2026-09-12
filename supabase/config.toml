@@ -352,8 +352,9 @@ project_id = "qxyubrqtelvciwoszjlc"
 # あちらは「メール認証そのもの」を切る設定で、既存ユーザーもログインできなくなる。
 
 # 本番のアプリのURL。ローカル開発用の値を持ち込まない。
-site_url = "https://ensei-nu.vercel.app"
-additional_redirect_urls = ["https://ensei-nu.vercel.app"]
+site_url = "https://tehai-matome.vercel.app"
+# 旧URL（ensei-nu）も当分は生かしておく。すでに配ったリンクを死なせないため。
+additional_redirect_urls = ["https://tehai-matome.vercel.app", "https://ensei-nu.vercel.app"]
 
 [remotes.production.auth.rate_limit]
 # Supabase標準の送信を使う場合の既定は2通/時だが、
