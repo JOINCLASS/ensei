@@ -377,6 +377,12 @@ content_path = "./supabase/templates/magic_link.html"
 subject = "遠征の手配 ログインコード"
 content_path = "./supabase/templates/confirmation.html"
 
+# ダッシュボードの Authentication → Users → Invite user から送られるメール。
+# リンクを踏むとそのままログインした状態でアプリが開く（コードの入力は要らない）。
+[remotes.production.auth.email.template.invite]
+subject = "遠征の手配をはじめられます"
+content_path = "./supabase/templates/invite.html"
+
 # Resend で送る。pass は環境変数から読むので、鍵はリポジトリに入らない。
 #
 # 送信元は Resend で認証済みのドメインでなければならない。

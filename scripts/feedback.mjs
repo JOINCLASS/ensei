@@ -17,8 +17,11 @@ const ok = (c, m, g) => { c ? (pass++, console.log(`  ✓ ${m}`)) : (fail++, con
 async function reactsWithin(page, locator, before) {
   const start = Date.now()
   for (let i = 0; i < 60; i++) {
-    const now = await locator.textContent().catch(() => null)
-    const dim = await locator.evaluate((el) => getComputedStyle(el).opacity).catch(() => null)
+    // 要素が消えたときに既定の待ち時間（30秒）を使わないよう、短く切る
+    const now = await locator.textContent({ timeout: 200 }).catch(() => null)
+    const dim = await locator
+      .evaluate((el) => getComputedStyle(el).opacity, undefined, { timeout: 200 })
+      .catch(() => null)
     if (now === null) return { ms: Date.now() - start, how: '画面が切り替わった' }
     if (now.trim() !== before) return { ms: Date.now() - start, how: `文言が「${now.trim()}」に変わった` }
     if (dim !== null && Number(dim) < 0.7) return { ms: Date.now() - start, how: '薄くなった' }

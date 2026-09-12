@@ -1,0 +1,39 @@
+<div style="font-family:'Hiragino Sans','Noto Sans JP',system-ui,sans-serif;line-height:1.8;color:#221F33">
+  <p>遠征の手配へ招待します。</p>
+
+  <p>
+    このアプリは、旅行予約サイトではありません。<br>
+    チケット・行き・帰り・ホテルの「まだ」を、<br>
+    遠征ごとに並べておくためのものです。
+  </p>
+
+  <p>例えば、こんな状態を残しておけます。</p>
+  <ul style="padding-left:1.2em">
+    <li>大阪2泊：チケット済、行き済、帰りとホテルがまだ</li>
+    <li>福岡1泊：当落待ちのまま、交通だけ仮押さえ</li>
+  </ul>
+
+  <p>使い方は簡単です。下のリンクを開くと、そのままはじめられます。</p>
+
+  <p style="margin:24px 0">
+    <a href="{{ .ConfirmationURL }}"
+       style="background:#221F33;color:#fff;text-decoration:none;
+              padding:12px 22px;border-radius:999px;font-weight:bold;display:inline-block">
+      遠征の手配をはじめる
+    </a>
+  </p>
+
+  <p style="font-size:13px;color:#6E6A82">
+    ボタンが開かないときは、このURLをブラウザに貼ってください。<br>
+    {{ .ConfirmationURL }}
+  </p>
+
+  <p>
+    最初は、次に控えている遠征を1件だけ入れてみてください。<br>
+    「何が終わっていて、何が止まっているか」が見えれば十分です。
+  </p>
+
+  <p style="font-size:12px;color:#6E6A82">
+    心当たりがないときは、このメールを捨ててください。
+  </p>
+</div>

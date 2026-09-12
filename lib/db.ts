@@ -3,6 +3,7 @@
 import { createClient } from '@/lib/supabase/client'
 import { TRIP_SELECT, itemFields, toItem, toTrip, tripFields } from '@/lib/map'
 import { addDays } from '@/lib/logic'
+import type { Json } from '@/lib/database.types'
 import type { Item, Trip } from '@/lib/types'
 import type { ItemDraft } from '@/components/ItemSheet'
 import type { TripDraft } from '@/components/TripSheet'
@@ -103,43 +104,16 @@ export async function clearSample() {
 }
 
 /**
- * サンプルを入れる。旅を作るとトリガが4項目を作るので、
- * 足すのではなく、出来た4項目を種類で突き合わせて中身を書き込む。
+ * サンプルを入れる。
  *
- * 1件ずつ送ると25回の往復になり、2秒近くかかっていた。まとめて送る。
+ * 中身は決まっているので、まるごとDBの関数に渡して1回の通信で済ませる。
+ * 以前は旅ごとに「登録 → 自動で入った4項目を取り直す → 1件ずつ書き込む」と
+ * していたので、4つの旅で25回の往復になっていた。
+ * 関数は入れ終わった全件を返すので、取り直しも要らない。
  */
 export async function insertSample(): Promise<Trip[]> {
-  const samples = sampleTrips()
-
-  // ① 旅をまとめて作る（トリガが各旅に4項目を作る）
-  const made = check(
-    await db()
-      .from('trips')
-      .insert(samples.map(({ items, ...t }) => ({ ...tripFields(t), is_sample: true })))
-      .select('id'),
-  )
-
-  // ② 出来た4項目をまとめて取る
   const rows = check(
-    await db().from('trips').select(TRIP_SELECT).in('id', made.map((r) => r.id)),
+    await db().rpc('create_sample_trips', { samples: sampleTrips() as unknown as Json }),
   )
-
-  // ③ 種類で突き合わせて、まとめて書き込む
-  const updates = rows.flatMap((row) => {
-    const sample = samples.find((s) => s.title === row.title)
-    if (!sample) return []
-    return (row.arrangements ?? []).flatMap((a) => {
-      const want = sample.items.find((i) => i.type === a.type)
-      if (!want) return []
-      return [{
-        id: a.id,
-        trip_id: row.id,
-        position: a.position,
-        ...itemFields({ ...toItem(a), ...want } as ItemDraft),
-      }]
-    })
-  })
-  if (updates.length) check(await db().from('arrangements').upsert(updates).select('id'))
-
-  return fetchTrips()
+  return (rows as unknown as Parameters<typeof toTrip>[0][]).map(toTrip)
 }

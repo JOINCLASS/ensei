@@ -173,7 +173,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      create_sample_trips: { Args: { samples: Json }; Returns: Json }
     }
     Enums: {
       [_ in never]: never
