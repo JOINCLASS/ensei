@@ -1,0 +1,543 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#EEEDF4">
+<title>遠征の手配</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@500;700;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#EEEDF4; --paper:#FFFFFF; --ink:#221F33; --muted:#6E6A82; --line:#DCDAE6; --danger:#C0392B;
+  --font:'Zen Maru Gothic','Hiragino Maru Gothic ProN','Hiragino Sans','Noto Sans JP',system-ui,sans-serif;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font);font-weight:500;-webkit-text-size-adjust:100%}
+body{min-height:100vh}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer;-webkit-tap-highlight-color:transparent}
+:focus-visible{outline:3px solid var(--ink);outline-offset:2px}
+.vh{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.app{max-width:480px;margin:0 auto;padding:max(16px,env(safe-area-inset-top)) 16px calc(48px + env(safe-area-inset-bottom))}
+
+/* ボタン */
+.btn{border:none;border-radius:999px;padding:10px 16px;font-weight:700;background:var(--ink);color:#fff;font-size:15px;white-space:nowrap}
+.btn.ghost{background:transparent;color:var(--ink);box-shadow:inset 0 0 0 1.5px var(--line)}
+.btn.danger{background:transparent;color:var(--danger);box-shadow:inset 0 0 0 1.5px #E9C3BE}
+.btn.danger[data-armed]{background:var(--danger);color:#fff;box-shadow:none}
+.btn.wide{flex:1;padding:13px 16px}
+.linkbtn{background:none;border:none;font-weight:700;padding:10px 0;color:var(--ink);font-size:15px}
+
+/* 一覧 */
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:8px 0 6px}
+.top h1{font-size:24px;font-weight:900;margin:0;letter-spacing:.02em}
+.summary{margin:0 0 20px;color:var(--muted);font-size:14px;line-height:1.7}
+.summary b{color:var(--ink);font-weight:900}
+
+.ticket{--oshi:#8E4EC6;--on-oshi:#fff;--oshi-edge:#8E4EC6;
+  position:relative;display:grid;grid-template-columns:76px 1fr;width:100%;text-align:left;border:none;padding:0;margin:0 0 16px;
+  background:var(--paper);border-radius:14px}
+.ticket::before,.ticket::after{content:"";position:absolute;left:76px;width:18px;height:18px;border-radius:50%;background:var(--bg);transform:translateX(-50%)}
+.ticket::before{top:-9px}
+.ticket::after{bottom:-9px}
+.ticket.past{opacity:.55}
+.stub{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:14px 4px;
+  background:color-mix(in srgb,var(--oshi) 22%,#fff);border-left:6px solid var(--oshi-edge);border-right:2px dashed var(--line);border-radius:14px 0 0 14px}
+.stub-m{font-size:12px;color:var(--muted);font-weight:700}
+.stub-d{font-size:36px;font-weight:900;line-height:1.05;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.stub-w{font-size:12px;font-weight:700}
+.stub-n{font-size:11px;color:var(--muted);margin-top:8px;font-weight:700}
+.tbody{display:block;padding:14px 14px 14px 18px;min-width:0}
+.t-title{display:block;font-size:17px;font-weight:900;line-height:1.35;overflow-wrap:anywhere}
+.place{display:block;font-size:13px;color:var(--muted);margin:2px 0 12px}
+.punches{display:flex;flex-wrap:wrap;gap:8px 12px;margin-bottom:12px}
+.pch{display:flex;flex-direction:column;align-items:center;gap:3px;font-size:10.5px;font-weight:700;color:var(--ink);min-width:34px}
+.pch i{width:26px;height:26px;border-radius:50%;border:2px solid var(--ink);display:grid;place-items:center;font-style:normal;background:var(--paper)}
+.pch.s-done{color:var(--muted)}
+.pch.s-done i{background:var(--oshi);border-color:var(--oshi-edge)}
+.pch.s-done i::after{content:"✓";color:var(--on-oshi);font-size:14px;font-weight:900}
+.pch.s-wait{color:var(--muted)}
+.pch.s-wait i{border-style:dashed;border-color:var(--muted)}
+.pch.s-wait i::after{content:"待";font-size:11px;color:var(--muted);font-weight:900}
+.pch.more{justify-content:center;color:var(--muted);font-size:12px}
+.todo-line{display:flex;flex-wrap:wrap;align-items:center;gap:6px;font-size:13.5px;line-height:1.5}
+.chip-todo{background:var(--ink);color:#fff;border-radius:6px;padding:1px 8px;font-size:12px;font-weight:700}
+.chip-wait{box-shadow:inset 0 0 0 1.5px var(--muted);color:var(--muted);border-radius:6px;padding:1px 7px;font-size:12px;font-weight:700;margin-left:4px}
+.all-done{color:var(--muted)}
+.past-toggle{background:none;border:none;color:var(--muted);font-weight:700;padding:10px 0;font-size:14px}
+
+.empty{background:var(--paper);border-radius:14px;padding:32px 20px;text-align:center}
+.empty p{margin:0 0 20px;line-height:1.8;color:var(--muted);font-size:14px}
+.empty .btns{display:flex;flex-direction:column;gap:10px;align-items:center}
+.note{font-size:12px;color:var(--muted);text-align:center;margin-top:28px;line-height:1.6}
+
+/* 詳細 */
+.bar{display:flex;justify-content:space-between;align-items:center;margin:0 0 8px}
+.trip-head{--oshi:#8E4EC6;background:var(--paper);border-radius:14px;padding:26px 18px 18px;box-shadow:inset 0 8px 0 var(--oshi-edge);margin-bottom:16px}
+.dates{font-size:14px;font-weight:700;color:var(--muted);font-variant-numeric:tabular-nums;display:flex;align-items:baseline;gap:6px;flex-wrap:wrap}
+.dates b{font-size:30px;color:var(--ink);font-weight:900;letter-spacing:-.02em}
+.trip-head h1{font-size:21px;margin:8px 0 2px;font-weight:900;line-height:1.4;overflow-wrap:anywhere}
+.trip-head .place{margin:0}
+.prog{margin:14px 0 0;font-size:14px;font-weight:700}
+.prog-bar{height:8px;background:var(--bg);border-radius:99px;margin-top:6px;overflow:hidden}
+.prog-bar span{display:block;height:100%;background:var(--oshi);border-radius:99px;box-shadow:inset 0 0 0 1px var(--oshi-edge);transition:width .25s}
+.trip-memo{white-space:pre-wrap;font-size:13px;color:var(--muted);margin:10px 0 0;line-height:1.6}
+
+.items{list-style:none;margin:0;padding:0;background:var(--paper);border-radius:14px}
+.item{display:flex;align-items:flex-start;gap:14px;padding:14px;border-bottom:1px solid var(--line)}
+.item:last-child{border-bottom:none}
+.punch-btn{flex:none;width:44px;height:44px;border-radius:50%;border:2.5px solid var(--ink);background:var(--paper);
+  display:grid;place-items:center;font-weight:900;font-size:19px;padding:0;transition:background-color .18s}
+.item.s-done .punch-btn{background:var(--oshi);border-color:var(--oshi-edge);color:var(--on-oshi)}
+.item.s-wait .punch-btn{border-style:dashed;border-color:var(--muted);color:var(--muted);font-size:13px}
+.punch-btn.pop{animation:pop .3s ease}
+@keyframes pop{0%{transform:scale(1)}35%{transform:scale(.8)}100%{transform:scale(1)}}
+.item-main{flex:1;min-width:0;background:none;border:none;text-align:left;padding:2px 0 0;display:block}
+.item-head{display:flex;align-items:center;gap:8px;margin-bottom:3px}
+.item-type{font-weight:900;font-size:15px}
+.tag{font-size:11.5px;font-weight:700;border-radius:6px;padding:1px 7px}
+.tag-todo{background:var(--ink);color:#fff}
+.tag-wait{box-shadow:inset 0 0 0 1.5px var(--muted);color:var(--muted)}
+.tag-done{color:var(--muted);padding-left:0}
+.item-name{display:block;font-size:15px;overflow-wrap:anywhere;line-height:1.5}
+.item-name.placeholder{color:var(--muted);font-size:14px}
+.item-sub{display:block;font-size:13.5px;color:var(--ink);margin-top:2px;font-variant-numeric:tabular-nums}
+.item-memo{display:block;font-size:12.5px;color:var(--muted);margin-top:4px;white-space:pre-wrap;line-height:1.5}
+.add-item{width:100%;margin-top:12px;padding:14px;border:2px dashed var(--line);border-radius:14px;background:transparent;font-weight:700;color:var(--muted);font-size:15px}
+
+/* シート */
+.overlay{position:fixed;inset:0;background:rgba(34,31,51,.45);display:flex;align-items:flex-end;justify-content:center;z-index:10}
+.sheet{background:var(--paper);width:100%;max-width:480px;max-height:92vh;overflow:auto;border-radius:18px 18px 0 0;
+  padding:20px 18px calc(18px + env(safe-area-inset-bottom));animation:up .22s ease}
+@keyframes up{from{transform:translateY(28px);opacity:.5}to{transform:none;opacity:1}}
+.sheet h2{margin:0 0 16px;font-size:18px;font-weight:900}
+.field{display:block;margin:0 0 12px;border:none;padding:0;min-width:0}
+.field>span,.field legend{display:block;font-size:12.5px;color:var(--muted);font-weight:700;margin-bottom:5px;padding:0}
+.field input,.field textarea{width:100%;border:1.5px solid var(--line);border-radius:10px;padding:11px 12px;background:#fff;font-size:16px;min-height:46px}
+.field textarea{resize:vertical;line-height:1.5}
+.field input:focus,.field textarea:focus{outline:none;border-color:var(--ink)}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.seg{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 14px}
+.seg label{position:relative}
+.seg input,.sw input{position:absolute;opacity:0;pointer-events:none}
+.seg span{display:inline-block;padding:8px 13px;border-radius:999px;box-shadow:inset 0 0 0 1.5px var(--line);font-size:14px;font-weight:700}
+.seg input:checked+span{background:var(--ink);color:#fff;box-shadow:none}
+.seg input:focus-visible+span,.sw input:focus-visible+span{outline:3px solid var(--ink);outline-offset:2px}
+.swatches{display:flex;gap:10px;flex-wrap:wrap}
+.sw{position:relative}
+.sw span{width:34px;height:34px;border-radius:50%;display:block;box-shadow:inset 0 0 0 1.5px rgba(34,31,51,.15)}
+.sw input:checked+span{box-shadow:inset 0 0 0 1.5px rgba(34,31,51,.15),0 0 0 3px var(--paper),0 0 0 5px var(--ink)}
+.err{color:var(--danger);font-size:13px;margin:0 0 10px;font-weight:700}
+.sheet-actions{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
+
+.toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom));transform:translateX(-50%);background:var(--ink);color:#fff;
+  padding:10px 18px;border-radius:999px;font-size:14px;font-weight:700;z-index:20;white-space:nowrap}
+
+@media (prefers-reduced-motion:reduce){
+  .punch-btn.pop,.sheet{animation:none}
+  .punch-btn,.prog-bar span{transition:none}
+}
+</style>
+</head>
+<body>
+<main class="app" id="app"></main>
+<div id="sheet"></div>
+<div class="toast" id="toast" role="status" hidden></div>
+
+<script>
+const COLORS=[
+  {id:'red',name:'赤',hex:'#E5484D',on:'#fff'},
+  {id:'pink',name:'ピンク',hex:'#F76FA8',on:'#fff'},
+  {id:'orange',name:'オレンジ',hex:'#F7934C',on:'#fff'},
+  {id:'yellow',name:'黄',hex:'#F5C400',on:'#221F33'},
+  {id:'green',name:'緑',hex:'#30A46C',on:'#fff'},
+  {id:'sky',name:'水色',hex:'#3DB6E8',on:'#fff'},
+  {id:'blue',name:'青',hex:'#3E63DD',on:'#fff'},
+  {id:'purple',name:'紫',hex:'#8E4EC6',on:'#fff'},
+  {id:'white',name:'白',hex:'#FFFFFF',on:'#221F33'}
+];
+const TYPES={ticket:'チケット',go:'行き',back:'帰り',hotel:'ホテル',other:'その他'};
+const STATUS={todo:'まだ',wait:'当落待ち',done:'手配済み'};
+const NAME_LABEL={
+  ticket:['公演・席など','例：FC先行 スタンド'],
+  go:['便名・列車名','例：のぞみ21号 7号車'],
+  back:['便名・列車名','例：のぞみ48号'],
+  hotel:['ホテル名','例：〇〇ホテル梅田'],
+  other:['内容','例：レンタカー、ツアーバス']
+};
+const WD='日月火水木金土';
+const KEY='ensei-data-v1';
+
+let data={trips:[]};
+const persistent=!!(window.storage&&typeof window.storage.get==='function');
+const ui={view:'list',tripId:null,showPast:false};
+const $app=document.getElementById('app');
+const $sheet=document.getElementById('sheet');
+
+/* ---------- 保存（claude.ai上では永続保存、それ以外はこの画面の中だけ） ---------- */
+async function load(){
+  if(!persistent) return;
+  try{
+    const r=await window.storage.get(KEY,false);
+    if(r&&r.value){const d=JSON.parse(r.value); if(d&&Array.isArray(d.trips)) data=d;}
+  }catch(e){/* まだ保存データがない */}
+}
+async function save(){
+  if(!persistent) return;
+  try{ await window.storage.set(KEY,JSON.stringify(data),false); }
+  catch(e){ toast('保存できませんでした。もう一度お試しください'); }
+}
+
+/* ---------- 小道具 ---------- */
+const uid=()=>Math.random().toString(36).slice(2,10);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const colorOf=id=>COLORS.find(c=>c.id===id)||COLORS[7];
+function oshiStyle(id){const c=colorOf(id);return `--oshi:${c.hex};--on-oshi:${c.on};--oshi-edge:${c.id==='white'?'#221F33':c.hex}`;}
+const pad=n=>String(n).padStart(2,'0');
+const ymd=d=>`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+function parseD(s){const [y,m,d]=s.split('-').map(Number);return new Date(y,m-1,d);}
+const md=s=>{if(!s)return '';const d=parseD(s);return `${d.getMonth()+1}/${d.getDate()}`;};
+const wd=s=>s?WD[parseD(s).getDay()]:'';
+const nights=(a,b)=>(!a||!b)?0:Math.round((parseD(b)-parseD(a))/86400000);
+function dtParts(s){if(!s)return null;const [d,t]=s.split('T');return {d,t:t?t.slice(0,5).replace(/^0/,''):''};}
+const todayStr=()=>ymd(new Date());
+function addDays(n){const d=new Date();d.setDate(d.getDate()+n);return ymd(d);}
+const findTrip=id=>data.trips.find(t=>t.id===id);
+const itemLabel=i=>i.type==='other'?(i.name||'その他'):TYPES[i.type];
+function stats(t){const c={todo:0,wait:0,done:0};t.items.forEach(i=>c[i.status]++);return c;}
+const isPast=t=>(t.end||t.start)<todayStr();
+function nextStatus(i){
+  if(i.type==='ticket') return {todo:'wait',wait:'done',done:'todo'}[i.status];
+  return i.status==='done'?'todo':'done';
+}
+const defaultItems=()=>['ticket','go','back','hotel'].map(type=>({id:uid(),type,status:'todo'}));
+
+let toastTimer;
+function toast(msg){
+  const el=document.getElementById('toast');
+  el.textContent=msg; el.hidden=false;
+  clearTimeout(toastTimer); toastTimer=setTimeout(()=>{el.hidden=true},1800);
+}
+
+/* ---------- 一覧 ---------- */
+function ticketHTML(t,past){
+  const s=stats(t), n=nights(t.start,t.end), d=parseD(t.start);
+  const shown=t.items.slice(0,6);
+  const punches=shown.map(i=>`<span class="pch s-${i.status}"><i aria-hidden="true"></i>${esc(itemLabel(i))}</span>`).join('')
+    +(t.items.length>6?`<span class="pch more">+${t.items.length-6}</span>`:'');
+  const todo=t.items.filter(i=>i.status==='todo').map(itemLabel);
+  const wait=t.items.filter(i=>i.status==='wait').map(itemLabel);
+  let line='';
+  if(todo.length) line+=`<span class="chip-todo">まだ</span><span>${esc(todo.join('、'))}</span>`;
+  if(wait.length) line+=`<span class="chip-wait">当落待ち</span><span>${esc(wait.join('、'))}</span>`;
+  if(!line) line=`<span class="all-done">${t.items.length?'すべて手配済み':'手配の項目がありません'}</span>`;
+  const range=t.end&&t.end!==t.start?`${md(t.start)}〜${md(t.end)}`:md(t.start);
+  const aria=`${t.title}、${range}。まだの手配${s.todo}件`;
+  return `<button class="ticket${past?' past':''}" style="${oshiStyle(t.color)}" data-act="open-trip" data-id="${t.id}" aria-label="${esc(aria)}">
+    <span class="stub" aria-hidden="true">
+      <span class="stub-m">${d.getMonth()+1}月</span><span class="stub-d">${d.getDate()}</span><span class="stub-w">${wd(t.start)}</span>
+      <span class="stub-n">${n>0?`${n}泊`:'日帰り'}</span>
+    </span>
+    <span class="tbody">
+      <span class="t-title">${esc(t.title)}</span>
+      <span class="place">${t.place?esc(t.place)+'　':''}${range}</span>
+      <span class="punches">${punches}</span>
+      <span class="todo-line">${line}</span>
+    </span>
+  </button>`;
+}
+
+function renderList(){
+  const trips=[...data.trips].sort((a,b)=>a.start.localeCompare(b.start));
+  const up=trips.filter(t=>!isPast(t)), past=trips.filter(isPast).reverse();
+  const head=`<header class="top"><h1>遠征の手配</h1>${data.trips.length?'<button class="btn" data-act="new-trip">＋ 旅を追加</button>':''}</header>`;
+  const note=persistent?'':'<p class="note">試作版のため、このページを閉じると入力した内容は消えます。</p>';
+
+  if(!data.trips.length){
+    return head+`<section class="empty">
+      <p>遠征の予定を登録すると、<br>どの旅の何が手配済みで、何がまだかが<br>ここにひと目で並びます。</p>
+      <div class="btns"><button class="btn" data-act="new-trip">＋ 最初の旅を追加</button>
+      <button class="linkbtn" data-act="sample">サンプルで見てみる</button></div>
+    </section>`+note;
+  }
+
+  let todo=0,wait=0,withTodo=0;
+  up.forEach(t=>{const s=stats(t);todo+=s.todo;wait+=s.wait;if(s.todo)withTodo++;});
+  let summary;
+  if(!up.length) summary='これからの遠征は登録されていません。';
+  else if(todo) summary=`<b>${withTodo}つの旅で、まだの手配が${todo}件</b>あります。${wait?`当落待ちは${wait}件です。`:''}`;
+  else if(wait) summary=`まだの手配はありません。当落待ちが${wait}件あります。`;
+  else summary=`これからの遠征${up.length}件は、すべて手配済みです。`;
+
+  let html=head+`<p class="summary">${summary}</p><section aria-label="これからの遠征">${up.map(t=>ticketHTML(t,false)).join('')}</section>`;
+  if(past.length){
+    html+=`<button class="past-toggle" data-act="toggle-past" aria-expanded="${ui.showPast}">${ui.showPast?'▾':'▸'} 終わった旅（${past.length}）</button>`;
+    if(ui.showPast) html+=`<section aria-label="終わった旅">${past.map(t=>ticketHTML(t,true)).join('')}</section>`;
+  }
+  return html+note;
+}
+
+/* ---------- 旅の詳細 ---------- */
+function itemSub(i){
+  if(i.type==='go'||i.type==='back'){
+    const a=dtParts(i.dep), b=dtParts(i.arr);
+    const left=[i.from,a&&a.t].filter(Boolean).join(' ');
+    const right=[i.to,b&&b.t].filter(Boolean).join(' ');
+    if(!left&&!right) return a?md(a.d):'';
+    return `${a?md(a.d)+'　':''}${left||'—'} → ${right||'—'}`;
+  }
+  if(i.type==='hotel'){
+    if(!i.checkIn) return '';
+    const n=nights(i.checkIn,i.checkOut);
+    return `${md(i.checkIn)}〜${md(i.checkOut)}${n>0?`　${n}泊`:''}`;
+  }
+  const a=dtParts(i.dep);
+  if(!a) return '';
+  return `${i.type==='ticket'?'開演 ':''}${md(a.d)} ${a.t}`.trim();
+}
+
+function itemHTML(i){
+  const glyph=i.status==='done'?'✓':i.status==='wait'?'待ち':'';
+  const sub=itemSub(i);
+  const label=itemLabel(i);
+  return `<li class="item s-${i.status}">
+    <button class="punch-btn" data-act="cycle" data-item="${i.id}" aria-label="${esc(label)}：${STATUS[i.status]}。タップで「${STATUS[nextStatus(i)]}」にする">${glyph}</button>
+    <button class="item-main" data-act="edit-item" data-item="${i.id}">
+      <span class="item-head"><span class="item-type">${esc(TYPES[i.type])}</span><span class="tag tag-${i.status}">${STATUS[i.status]}</span></span>
+      ${i.name?`<span class="item-name">${esc(i.name)}</span>`:(sub?'':'<span class="item-name placeholder">タップして詳細を入力</span>')}
+      ${sub?`<span class="item-sub">${esc(sub)}</span>`:''}
+      ${i.memo?`<span class="item-memo">${esc(i.memo)}</span>`:''}
+    </button>
+  </li>`;
+}
+
+function renderTrip(t){
+  const s=stats(t), total=t.items.length, n=nights(t.start,t.end);
+  const pct=total?Math.round(s.done/total*100):0;
+  const endPart=t.end&&t.end!==t.start?`<span>〜</span><b>${md(t.end)}</b><span>${wd(t.end)}</span>`:'';
+  return `<div class="bar"><button class="linkbtn" data-act="back">‹ 一覧にもどる</button><button class="linkbtn" data-act="edit-trip">旅を編集</button></div>
+  <section class="trip-head" style="${oshiStyle(t.color)}">
+    <div class="dates"><b>${md(t.start)}</b><span>${wd(t.start)}</span>${endPart}<span>　${n>0?`${n}泊`:'日帰り'}</span></div>
+    <h1>${esc(t.title)}</h1>
+    ${t.place?`<p class="place">${esc(t.place)}</p>`:''}
+    <p class="prog">${total}つのうち${s.done}つ手配済み${s.wait?`、当落待ち${s.wait}つ`:''}</p>
+    <div class="prog-bar" aria-hidden="true"><span style="width:${pct}%"></span></div>
+    ${t.memo?`<p class="trip-memo">${esc(t.memo)}</p>`:''}
+  </section>
+  <ul class="items" style="${oshiStyle(t.color)}">${t.items.map(itemHTML).join('')}</ul>
+  ${total?'':'<p class="note">手配の項目がありません。下のボタンから追加できます。</p>'}
+  <button class="add-item" data-act="new-item">＋ 手配を追加</button>
+  ${persistent?'':'<p class="note">試作版のため、このページを閉じると入力した内容は消えます。</p>'}`;
+}
+
+function render(){
+  if(ui.view==='trip'&&!findTrip(ui.tripId)) ui.view='list';
+  $app.innerHTML=ui.view==='list'?renderList():renderTrip(findTrip(ui.tripId));
+}
+function go(view,id){ui.view=view;ui.tripId=id||null;render();window.scrollTo(0,0);}
+
+/* ---------- シート（入力画面） ---------- */
+function openSheet(html){
+  $sheet.innerHTML=`<div class="overlay">${html}</div>`;
+  const first=$sheet.querySelector('input:not([type=radio]),textarea');
+  if(first) setTimeout(()=>first.focus({preventScroll:true}),50);
+}
+function closeSheet(){$sheet.innerHTML='';}
+
+function tripSheet(t){
+  const isNew=!t;
+  t=t||{title:'',place:'',start:'',end:'',color:'purple',memo:''};
+  return `<div class="sheet" id="tripSheet" role="dialog" aria-modal="true" aria-labelledby="tsTitle">
+    <h2 id="tsTitle">${isNew?'旅を追加':'旅を編集'}</h2>
+    <label class="field"><span>公演・イベント名</span><input name="title" value="${esc(t.title)}" placeholder="例：ツアー大阪公演"></label>
+    <label class="field"><span>行き先・会場</span><input name="place" value="${esc(t.place)}" placeholder="例：大阪・京セラドーム"></label>
+    <div class="row">
+      <label class="field"><span>出発する日</span><input type="date" name="start" value="${t.start}"></label>
+      <label class="field"><span>帰る日</span><input type="date" name="end" value="${t.end}"></label>
+    </div>
+    <fieldset class="field"><legend>推し色</legend><div class="swatches">
+      ${COLORS.map(c=>`<label class="sw"><input type="radio" name="color" value="${c.id}" ${c.id===t.color?'checked':''}><span style="background:${c.hex}"></span><em class="vh">${c.name}</em></label>`).join('')}
+    </div></fieldset>
+    <label class="field"><span>メモ</span><textarea name="memo" rows="2" placeholder="例：2日目は昼公演">${esc(t.memo)}</textarea></label>
+    ${isNew?'<p class="note" style="margin:0 0 12px;text-align:left">チケット・行き・帰り・ホテルの4項目が自動で入ります。</p>':''}
+    <p class="err" hidden></p>
+    <div class="sheet-actions">
+      ${isNew?'':'<button type="button" class="btn danger" data-act="del-trip">削除</button>'}
+      <button type="button" class="btn ghost" data-act="close">やめる</button>
+      <button type="button" class="btn wide" data-act="save-trip">${isNew?'追加する':'保存する'}</button>
+    </div>
+  </div>`;
+}
+
+function itemSheet(i){
+  const isNew=!i;
+  i=i||{type:'other',status:'todo'};
+  const radios=(name,obj,cur,extra=()=>'')=>Object.entries(obj).map(([k,v])=>
+    `<label ${extra(k)}><input type="radio" name="${name}" value="${k}" ${k===cur?'checked':''}><span>${v}</span></label>`).join('');
+  return `<div class="sheet" id="itemSheet" data-item="${isNew?'':i.id}" role="dialog" aria-modal="true" aria-labelledby="isTitle">
+    <h2 id="isTitle">${isNew?'手配を追加':'手配を編集'}</h2>
+    <div class="seg" role="radiogroup" aria-label="種類">${radios('type',TYPES,i.type)}</div>
+    <div class="seg" role="radiogroup" aria-label="状態">${radios('status',STATUS,i.status,k=>`data-status="${k}"`)}</div>
+    <label class="field"><span data-l="name"></span><input name="name" value="${esc(i.name||'')}"></label>
+    <div class="row" data-v="fromto">
+      <label class="field"><span>出発</span><input name="from" value="${esc(i.from||'')}" placeholder="例：東京"></label>
+      <label class="field"><span>到着</span><input name="to" value="${esc(i.to||'')}" placeholder="例：新大阪"></label>
+    </div>
+    <label class="field" data-v="dep"><span data-l="dep"></span><input type="datetime-local" name="dep" value="${i.dep||''}"></label>
+    <label class="field" data-v="arr"><span>到着日時</span><input type="datetime-local" name="arr" value="${i.arr||''}"></label>
+    <div class="row" data-v="hotel">
+      <label class="field"><span>チェックイン</span><input type="date" name="checkIn" value="${i.checkIn||''}"></label>
+      <label class="field"><span>チェックアウト</span><input type="date" name="checkOut" value="${i.checkOut||''}"></label>
+    </div>
+    <label class="field"><span>メモ</span><textarea name="memo" rows="2" placeholder="予約番号、座席、キャンセル期限など">${esc(i.memo||'')}</textarea></label>
+    <div class="sheet-actions">
+      ${isNew?'':'<button type="button" class="btn danger" data-act="del-item">削除</button>'}
+      <button type="button" class="btn ghost" data-act="close">やめる</button>
+      <button type="button" class="btn wide" data-act="save-item">${isNew?'追加する':'保存する'}</button>
+    </div>
+  </div>`;
+}
+
+const VIS={fromto:['go','back'],dep:['go','back','ticket','other'],arr:['go','back'],hotel:['hotel']};
+function applyType(sh){
+  const type=sh.querySelector('[name=type]:checked').value;
+  sh.querySelectorAll('[data-v]').forEach(el=>{el.hidden=!VIS[el.dataset.v].includes(type);});
+  const [l,p]=NAME_LABEL[type];
+  sh.querySelector('[data-l=name]').textContent=l;
+  sh.querySelector('[name=name]').placeholder=p;
+  sh.querySelector('[name=from]').placeholder=type==='back'?'例：新大阪':'例：東京';
+  sh.querySelector('[name=to]').placeholder=type==='back'?'例：東京':'例：新大阪';
+  sh.querySelector('[data-l=dep]').textContent=type==='ticket'?'開演日時':type==='other'?'日時':'出発日時';
+  sh.querySelector('[data-status=wait]').hidden=type!=='ticket';
+  if(type!=='ticket'&&sh.querySelector('[name=status]:checked').value==='wait')
+    sh.querySelector('[name=status][value=todo]').checked=true;
+}
+const val=(sh,name)=>{const el=sh.querySelector(`[name=${name}]`);return el?el.value.trim():'';};
+
+/* ---------- 操作 ---------- */
+async function saveTrip(){
+  const sh=document.getElementById('tripSheet');
+  const err=sh.querySelector('.err');
+  const title=val(sh,'title'), start=val(sh,'start');
+  let end=val(sh,'end');
+  const fail=m=>{err.textContent=m;err.hidden=false;};
+  if(!title) return fail('公演・イベント名を入れてください。');
+  if(!start) return fail('出発する日を選んでください。');
+  if(!end) end=start;
+  if(end<start) return fail('帰る日は、出発する日と同じか後の日にしてください。');
+  const fields={title,place:val(sh,'place'),start,end,memo:val(sh,'memo'),
+    color:(sh.querySelector('[name=color]:checked')||{}).value||'purple'};
+  if(ui.view==='trip'&&findTrip(ui.tripId)){
+    Object.assign(findTrip(ui.tripId),fields);
+    await save(); closeSheet(); render(); toast('保存しました');
+  }else{
+    const t={id:uid(),...fields,items:defaultItems()};
+    data.trips.push(t);
+    await save(); closeSheet(); go('trip',t.id); toast('旅を追加しました');
+  }
+}
+
+async function saveItem(){
+  const sh=document.getElementById('itemSheet');
+  const t=findTrip(ui.tripId); if(!t) return;
+  const type=sh.querySelector('[name=type]:checked').value;
+  const item={type,status:sh.querySelector('[name=status]:checked').value,name:val(sh,'name'),memo:val(sh,'memo')};
+  if(VIS.fromto.includes(type)){item.from=val(sh,'from');item.to=val(sh,'to');}
+  if(VIS.dep.includes(type)) item.dep=val(sh,'dep');
+  if(VIS.arr.includes(type)) item.arr=val(sh,'arr');
+  if(VIS.hotel.includes(type)){item.checkIn=val(sh,'checkIn');item.checkOut=val(sh,'checkOut');}
+  const id=sh.dataset.item;
+  if(id){
+    const idx=t.items.findIndex(i=>i.id===id);
+    if(idx>=0) t.items[idx]={id,...item};
+    toast('保存しました');
+  }else{
+    t.items.push({id:uid(),...item});
+    toast('手配を追加しました');
+  }
+  await save(); closeSheet(); render();
+}
+
+function armDelete(btn){
+  if(btn.dataset.armed) return true;
+  btn.dataset.armed='1'; btn.textContent='もう一度押すと削除';
+  return false;
+}
+
+document.addEventListener('click',async e=>{
+  if(e.target.classList.contains('overlay')){closeSheet();return;}
+  const el=e.target.closest('[data-act]'); if(!el) return;
+  const act=el.dataset.act;
+  if(act==='open-trip') go('trip',el.dataset.id);
+  else if(act==='back') go('list');
+  else if(act==='toggle-past'){ui.showPast=!ui.showPast;render();}
+  else if(act==='new-trip') openSheet(tripSheet(null));
+  else if(act==='edit-trip') openSheet(tripSheet(findTrip(ui.tripId)));
+  else if(act==='close') closeSheet();
+  else if(act==='save-trip') saveTrip();
+  else if(act==='sample'){data.trips=sampleTrips();await save();render();}
+  else if(act==='del-trip'){
+    if(!armDelete(el)) return;
+    data.trips=data.trips.filter(t=>t.id!==ui.tripId);
+    await save(); closeSheet(); go('list'); toast('旅を削除しました');
+  }
+  else if(act==='new-item'){openSheet(itemSheet(null));applyType(document.getElementById('itemSheet'));}
+  else if(act==='edit-item'){
+    const it=findTrip(ui.tripId).items.find(i=>i.id===el.dataset.item);
+    openSheet(itemSheet(it));applyType(document.getElementById('itemSheet'));
+  }
+  else if(act==='save-item') saveItem();
+  else if(act==='del-item'){
+    if(!armDelete(el)) return;
+    const t=findTrip(ui.tripId), id=document.getElementById('itemSheet').dataset.item;
+    t.items=t.items.filter(i=>i.id!==id);
+    await save(); closeSheet(); render(); toast('手配を削除しました');
+  }
+  else if(act==='cycle'){
+    const t=findTrip(ui.tripId), it=t.items.find(i=>i.id===el.dataset.item);
+    it.status=nextStatus(it);
+    render();
+    const btn=$app.querySelector(`[data-act=cycle][data-item="${it.id}"]`);
+    if(btn){btn.classList.add('pop');btn.focus({preventScroll:true});}
+    save();
+  }
+});
+document.addEventListener('change',e=>{
+  if(e.target.name==='type'){const sh=document.getElementById('itemSheet');if(sh) applyType(sh);}
+});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$sheet.innerHTML) closeSheet();});
+
+/* ---------- サンプル ---------- */
+function sampleTrips(){
+  const a=addDays(9),a2=addDays(11),b=addDays(24),b2=addDays(25),c=addDays(40),c2=addDays(43),p=addDays(-20),p2=addDays(-19);
+  return [
+    {id:uid(),title:'ASIA TOUR 大阪公演',place:'大阪・京セラドーム',start:a,end:a2,color:'sky',memo:'2日目は昼公演',items:[
+      {id:uid(),type:'ticket',status:'done',name:'2日間とも当選 スタンド',dep:`${a}T17:00`},
+      {id:uid(),type:'go',status:'done',name:'のぞみ21号 7号車',from:'東京',to:'新大阪',dep:`${a}T08:30`,arr:`${a}T11:00`},
+      {id:uid(),type:'back',status:'todo'},
+      {id:uid(),type:'hotel',status:'todo',memo:'会場まで電車で20分以内で探す'}]},
+    {id:uid(),title:'ファンミーティング 福岡',place:'福岡・マリンメッセ',start:b,end:b2,color:'pink',memo:'',items:[
+      {id:uid(),type:'ticket',status:'wait',name:'FC先行 当落は来週'},
+      {id:uid(),type:'go',status:'todo'},
+      {id:uid(),type:'back',status:'todo'},
+      {id:uid(),type:'hotel',status:'done',name:'博多駅前のホテル',checkIn:b,checkOut:b2,memo:'前日までキャンセル無料'}]},
+    {id:uid(),title:'ASIA TOUR 台北公演',place:'台北',start:c,end:c2,color:'sky',memo:'',items:[
+      {id:uid(),type:'ticket',status:'done',name:'1日目のみ'},
+      {id:uid(),type:'go',status:'done',name:'BR189',from:'羽田',to:'台北松山',dep:`${c}T09:15`,arr:`${c}T12:05`},
+      {id:uid(),type:'back',status:'done',name:'BR190',from:'台北松山',to:'羽田',dep:`${c2}T13:30`,arr:`${c2}T17:20`},
+      {id:uid(),type:'hotel',status:'done',name:'中山駅近くのホテル',checkIn:c,checkOut:c2}]},
+    {id:uid(),title:'ASIA TOUR 名古屋公演',place:'名古屋・バンテリンドーム',start:p,end:p2,color:'sky',memo:'',items:[
+      {id:uid(),type:'ticket',status:'done',name:'アリーナ'},
+      {id:uid(),type:'go',status:'done',name:'ひかり503号',from:'東京',to:'名古屋'},
+      {id:uid(),type:'back',status:'done',name:'のぞみ52号',from:'名古屋',to:'東京'},
+      {id:uid(),type:'hotel',status:'done',name:'名駅のホテル',checkIn:p,checkOut:p2}]}
+  ];
+}
+
+(async()=>{await load();render();})();
+</script>
+</body>
+</html>

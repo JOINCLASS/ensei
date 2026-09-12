@@ -1,0 +1,38 @@
+{
+  "name": "ensei",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "typecheck": "tsc --noEmit",
+    "verify": "node scripts/verify.mjs",
+    "behaviour": "node scripts/behaviour.mjs",
+    "icons": "node scripts/make-icons.mjs",
+    "code": "node --env-file=.env.local scripts/code.mjs",
+    "sample": "node scripts/sample.mjs",
+    "e2e": "npm run verify && npm run behaviour && npm run sample && npm run walkthrough && npm run walkthrough2",
+    "video": "bash scripts/videos-to-mp4.sh",
+    "walkthrough": "node scripts/walkthrough.mjs",
+    "walkthrough2": "node scripts/walkthrough2.mjs",
+    "security": "node --env-file=.env.local scripts/security.mjs"
+  },
+  "dependencies": {
+    "@supabase/ssr": "^0.12.7",
+    "@supabase/supabase-js": "^2.116.0",
+    "next": "^16.3.5",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.63.0",
+    "@types/node": "^22.20.2",
+    "@types/pngjs": "^6.0.5",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "pixelmatch": "^7.2.0",
+    "pngjs": "^7.0.0",
+    "typescript": "^7.0.2"
+  }
+}

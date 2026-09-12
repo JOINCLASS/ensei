@@ -1,0 +1,26 @@
+node_modules/
+.next/
+out/
+build/
+
+.env
+.env.local
+.env*.local
+!.env.local.example
+
+.DS_Store
+*.pem
+npm-debug.log*
+yarn-error.log*
+
+# Supabase CLI のローカル作業ファイル
+supabase/.branches/
+supabase/.temp/
+
+# Playwright
+test-results/
+playwright-report/
+shots/
+
+# TypeScript
+*.tsbuildinfo
