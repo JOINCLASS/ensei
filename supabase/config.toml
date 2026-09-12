@@ -346,8 +346,9 @@ enabled = true
 project_id = "qxyubrqtelvciwoszjlc"
 
 [remotes.production.auth]
-# ローカル開発用のリダイレクト先を本番に持ち込まない
-additional_redirect_urls = []
+# 本番のアプリのURL。ローカル開発用の値を持ち込まない。
+site_url = "https://ensei-nu.vercel.app"
+additional_redirect_urls = ["https://ensei-nu.vercel.app"]
 
 [remotes.production.auth.rate_limit]
 # ローカルは100に緩めてあるが、本番は既定の2に戻す。

@@ -24,3 +24,5 @@ shots/
 
 # TypeScript
 *.tsbuildinfo
+.vercel
+.env*
