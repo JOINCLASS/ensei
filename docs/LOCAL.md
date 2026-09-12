@@ -81,3 +81,46 @@ supabase db push
 本番では、認証メールのテンプレートに6桁コード `{{ .Token }}` を載せる設定が要る
 （既定のテンプレートはリンクだけでコードが載らない）。
 中身は `supabase/templates/magic_link.html` と同じでよい。
+
+---
+
+# 本番
+
+| | |
+|---|---|
+| アプリ | https://ensei-nu.vercel.app （Vercel `githubkyos-projects/ensei`） |
+| Supabase | `qxyubrqtelvciwoszjlc`（東京 ap-northeast-1） |
+| メール | Resend（送信専用キー `supabase-auth-ensei`） |
+
+## 本番に変更を反映する
+
+```bash
+supabase db push          # テーブル・RLS・トリガ
+supabase config diff      # ★ config push の前に必ず見る
+supabase config push
+vercel deploy --prod      # アプリ
+```
+
+**`supabase config push` は config.toml が宣言している項目をすべて押す。**
+使っていない設定を宣言に残すと、本番の設定を巻き込んで壊す。
+（実際に MFA の無効化や pooler の接続数半減が起きかけた）
+必ず `supabase config diff` で「押される項目」を確認してから実行すること。
+
+## 本番の確認
+
+```bash
+npm run prod:check      # ログイン・登録・保存・現地時刻を通しで
+npm run prod:security   # RLS への攻撃20種
+```
+
+どちらも `.env.local` の `SUPABASE_SECRET`（Supabaseの秘密鍵）を使う。
+`prod:check` はメールを送らず、管理APIでコードを作って検証する。
+
+## いまの制約
+
+- **メールは Resend アカウントの登録アドレス にしか届かない。** Resend で独自ドメインを
+  認証していないため。他の人に使ってもらうには DNS に SPF/DKIM が要る
+- **新規登録は閉じている**（`auth.enable_signup = false`）。
+  人を増やすときは Authentication → Users → Invite から招待する
+- legacy の anon / service_role キーは無効化済み。
+  新しい publishable / secret キーだけを使うこと

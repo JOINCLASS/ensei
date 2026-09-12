@@ -14,7 +14,7 @@ const ANON = process.env.SUPABASE_ANON || process.env.NEXT_PUBLIC_SUPABASE_ANON_
  */
 function localSecret() {
   if (process.env.SUPABASE_SECRET) return process.env.SUPABASE_SECRET
-  if (process.env.SUPABASE_URL) throw new Error('本番を叩くときは SUPABASE_SECRET を渡すこと')
+  if (process.env.SUPABASE_URL) throw new Error('本番を叩くときは .env.local の SUPABASE_SECRET が要る')
   // 前置きの行が混ざるので、最初の { から後ろだけを読む
   const out = execSync('supabase status -o json', { encoding: 'utf8' })
   return JSON.parse(out.slice(out.indexOf('{'))).SECRET_KEY

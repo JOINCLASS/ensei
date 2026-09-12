@@ -9,7 +9,7 @@ import { createServerClient } from '@supabase/ssr'
 const APP = process.env.PROD_APP_URL
 const API = process.env.PROD_SUPABASE_URL
 const ANON = process.env.PROD_ANON
-const SECRET = process.env.PROD_SECRET
+const SECRET = process.env.PROD_SECRET || process.env.SUPABASE_SECRET
 const EMAIL = `prod-check+${Date.now()}@example.com`
 
 let pass = 0, fail = 0

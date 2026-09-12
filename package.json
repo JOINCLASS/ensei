@@ -16,7 +16,9 @@
     "video": "bash scripts/videos-to-mp4.sh",
     "walkthrough": "node scripts/walkthrough.mjs",
     "walkthrough2": "node scripts/walkthrough2.mjs",
-    "security": "node --env-file=.env.local scripts/security.mjs"
+    "security": "node --env-file=.env.local scripts/security.mjs",
+    "prod:check": "node --env-file=.env.local scripts/prod-check.mjs",
+    "prod:security": "node --env-file=.env.local scripts/security.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.7",
