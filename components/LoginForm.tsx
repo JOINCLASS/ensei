@@ -204,7 +204,7 @@ export function LoginForm({ inviteCode }: { inviteCode?: string } = {}) {
             <p className="err" hidden={!err}>{err}</p>
             <div className="btns">
               <button className="btn" onClick={sendCode} disabled={busy}>
-                {inviteCode ? 'はじめる' : 'コードを送る'}
+                {busy ? '送っています…' : inviteCode ? 'はじめる' : 'コードを送る'}
               </button>
             </div>
           </>
@@ -227,7 +227,9 @@ export function LoginForm({ inviteCode }: { inviteCode?: string } = {}) {
             </label>
             <p className="err" hidden={!err}>{err}</p>
             <div className="btns">
-              <button className="btn" onClick={verify} disabled={busy}>ログインする</button>
+              <button className="btn" onClick={verify} disabled={busy}>
+                {busy ? '確認しています…' : 'ログインする'}
+              </button>
               <button className="linkbtn" onClick={() => { setStep('email'); setCode(''); setErr('') }}>
                 メールアドレスを入れなおす
               </button>

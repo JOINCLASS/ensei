@@ -15,7 +15,7 @@ export function TripSheet({
 }: {
   trip: Trip | null
   onClose: () => void
-  onSave: (d: TripDraft) => void
+  onSave: (d: TripDraft) => void | Promise<void>
   onDelete?: () => void
 }) {
   const isNew = !trip
@@ -26,8 +26,9 @@ export function TripSheet({
   const [color, setColor] = useState<ColorId>(trip?.color ?? 'purple')
   const [memo, setMemo] = useState(trip?.memo ?? '')
   const [err, setErr] = useState('')
+  const [saving, setSaving] = useState(false)
 
-  function save() {
+  async function save() {
     const t = title.trim()
     const s = start.trim()
     let e = end.trim()
@@ -35,7 +36,10 @@ export function TripSheet({
     if (!s) return setErr('出発する日を選んでください。')
     if (!e) e = s
     if (e < s) return setErr('帰る日は、出発する日と同じか後の日にしてください。')
-    onSave({ title: t, place: place.trim(), start: s, end: e, color, memo: memo.trim() })
+    // 押してから画面が変わるまで1秒以上かかる。無反応だと二度押しを誘う。
+    setSaving(true)
+    await onSave({ title: t, place: place.trim(), start: s, end: e, color, memo: memo.trim() })
+    setSaving(false)
   }
 
   return (
@@ -90,7 +94,9 @@ export function TripSheet({
       <div className="sheet-actions">
         {!isNew && onDelete && <DeleteButton onConfirm={onDelete} />}
         <button type="button" className="btn ghost" onClick={onClose}>やめる</button>
-        <button type="button" className="btn wide" onClick={save}>{isNew ? '追加する' : '保存する'}</button>
+        <button type="button" className="btn wide" onClick={save} disabled={saving}>
+          {saving ? (isNew ? '追加しています…' : '保存しています…') : isNew ? '追加する' : '保存する'}
+        </button>
       </div>
     </Sheet>
   )

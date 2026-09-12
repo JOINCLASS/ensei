@@ -82,7 +82,9 @@ export function ListView({ initialTrips }: { initialTrips: Trip[] }) {
     <p className="note">
       {trips.some((t) => t.isSample) && (
         <>
-          <button className="linkbtn" onClick={tidySample} disabled={busy}>サンプルを片づける</button>
+          <button className="linkbtn" onClick={tidySample} disabled={busy}>
+            {busy ? '片づけています…' : 'サンプルを片づける'}
+          </button>
           <br />
         </>
       )}
@@ -100,7 +102,9 @@ export function ListView({ initialTrips }: { initialTrips: Trip[] }) {
           <p>遠征の予定を登録すると、<br />どの旅の何が手配済みで、何がまだかが<br />ここにひと目で並びます。</p>
           <div className="btns">
             <button className="btn" onClick={() => setSheet(true)}>＋ 最初の旅を追加</button>
-            <button className="linkbtn" onClick={sample}>サンプルで見てみる</button>
+            <button className="linkbtn" onClick={sample} disabled={busy}>
+              {busy ? '入れています…' : 'サンプルで見てみる'}
+            </button>
           </div>
         </section>
         {footer}

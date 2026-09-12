@@ -1,6 +1,6 @@
 'use client'
 
-import { useRef, useState } from 'react'
+import { useRef, useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { STATUS, TYPES, itemLabel, itemSub, md, nextStatus, nights, oshiStyle, stats, wd } from '@/lib/logic'
 import { createItem, deleteItem, deleteTrip, setItemStatus, updateItem, updateTrip } from '@/lib/db'
@@ -16,6 +16,7 @@ export function TripView({ initialTrip }: { initialTrip: Trip }) {
   const router = useRouter()
   const [trip, setTrip] = useState(initialTrip)
   const [sheet, setSheet] = useState<Sheet>(null)
+  const [leaving, startLeaving] = useTransition()
 
   const s = stats(trip)
   const total = trip.items.length
@@ -105,7 +106,14 @@ export function TripView({ initialTrip }: { initialTrip: Trip }) {
   return (
     <>
       <div className="bar">
-        <button className="linkbtn" onClick={() => router.push('/')}>‹ 一覧にもどる</button>
+        <button
+          className="linkbtn"
+          style={leaving ? { opacity: 0.55 } : undefined}
+          disabled={leaving}
+          onClick={() => startLeaving(() => router.push('/'))}
+        >
+          ‹ 一覧にもどる
+        </button>
         <button className="linkbtn" onClick={() => setSheet({ kind: 'trip' })}>旅を編集</button>
       </div>
 

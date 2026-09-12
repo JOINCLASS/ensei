@@ -43,7 +43,12 @@ export async function codeFor(email) {
  * ボタンを名前で正確に押す。
  * `text=ログインする` のような部分一致だと、本文の「ログインすると…」にも当たってしまう。
  */
-export const tap = (page, name) => page.getByRole('button', { name, exact: true }).click()
+export const tap = (page, name) =>
+  page
+    .getByRole('button', { name, exact: true })
+    .or(page.getByRole('link', { name, exact: true }))
+    .first()
+    .click()
 
 /**
  * 検証用のユーザーを作る。新規登録は閉じてあるので、アプリからは作れない。

@@ -1,5 +1,6 @@
 'use client'
 
+import { useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { itemLabel, md, nights, oshiStyle, parseD, stats, wd } from '@/lib/logic'
 import type { Trip } from '@/lib/types'
@@ -7,6 +8,9 @@ import type { Trip } from '@/lib/types'
 /** 参照HTMLの ticketHTML() */
 export function TripCard({ trip, past }: { trip: Trip; past: boolean }) {
   const router = useRouter()
+  // 詳細が出るまで1秒以上かかる。押した瞬間に薄くして「受け付けた」と分かるようにする。
+  // 濃さは終わった旅と同じ 0.55（新しい見た目を持ち込まない）。
+  const [opening, startOpening] = useTransition()
   const s = stats(trip)
   const n = nights(trip.start, trip.end)
   const d = parseD(trip.start)
@@ -19,8 +23,9 @@ export function TripCard({ trip, past }: { trip: Trip; past: boolean }) {
   return (
     <button
       className={`ticket${past ? ' past' : ''}`}
-      style={oshiStyle(trip.color)}
-      onClick={() => router.push(`/trips/${trip.id}`)}
+      style={{ ...oshiStyle(trip.color), ...(opening ? { opacity: 0.55 } : null) }}
+      disabled={opening}
+      onClick={() => startOpening(() => router.push(`/trips/${trip.id}`))}
       aria-label={`${trip.title}、${range}。まだの手配${s.todo}件`}
     >
       <span className="stub" aria-hidden="true">

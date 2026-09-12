@@ -15,7 +15,7 @@ export function ItemSheet({
 }: {
   item: Item | null
   onClose: () => void
-  onSave: (d: ItemDraft) => void
+  onSave: (d: ItemDraft) => void | Promise<void>
   onDelete?: () => void
 }) {
   const isNew = !item
@@ -29,6 +29,7 @@ export function ItemSheet({
   const [checkIn, setCheckIn] = useState(item?.checkIn ?? '')
   const [checkOut, setCheckOut] = useState(item?.checkOut ?? '')
   const [memo, setMemo] = useState(item?.memo ?? '')
+  const [saving, setSaving] = useState(false)
 
   /** 参照HTMLの applyType()：種類を変えると欄と文言が変わり、当落待ちはチケットだけ */
   function changeType(next: ItemType) {
@@ -40,13 +41,15 @@ export function ItemSheet({
   const [nameLabel, namePlaceholder] = NAME_LABEL[type]
   const depLabel = type === 'ticket' ? '開演日時' : type === 'other' ? '日時' : '出発日時'
 
-  function save() {
+  async function save() {
     const d: ItemDraft = { type, status, name: name.trim(), memo: memo.trim() }
     if (shows('fromto')) { d.from = from.trim(); d.to = to.trim() }
     if (shows('dep')) d.dep = dep.trim()
     if (shows('arr')) d.arr = arr.trim()
     if (shows('hotel')) { d.checkIn = checkIn.trim(); d.checkOut = checkOut.trim() }
-    onSave(d)
+    setSaving(true)
+    await onSave(d)
+    setSaving(false)
   }
 
   return (
@@ -116,7 +119,9 @@ export function ItemSheet({
       <div className="sheet-actions">
         {!isNew && onDelete && <DeleteButton onConfirm={onDelete} />}
         <button type="button" className="btn ghost" onClick={onClose}>やめる</button>
-        <button type="button" className="btn wide" onClick={save}>{isNew ? '追加する' : '保存する'}</button>
+        <button type="button" className="btn wide" onClick={save} disabled={saving}>
+          {saving ? (isNew ? '追加しています…' : '保存しています…') : isNew ? '追加する' : '保存する'}
+        </button>
       </div>
     </Sheet>
   )

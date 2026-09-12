@@ -5,9 +5,13 @@ import { createClient } from '@/lib/supabase/server'
 
 export default async function Page() {
   const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) redirect('/login')
+  // 直列に待つと往復が2回分かかる。RLS があるので、ログインしていなければ
+  // trips は空で返る。並行に投げて、あとから判定する。
+  const [auth, trips] = await Promise.all([
+    supabase.auth.getUser(),
+    supabase.from('trips').select(TRIP_SELECT).order('start_date'),
+  ])
+  if (!auth.data.user) redirect('/login')
 
-  const { data } = await supabase.from('trips').select(TRIP_SELECT).order('start_date')
-  return <ListView initialTrips={(data ?? []).map(toTrip)} />
+  return <ListView initialTrips={(trips.data ?? []).map(toTrip)} />
 }
