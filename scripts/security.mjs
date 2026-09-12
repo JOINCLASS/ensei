@@ -4,8 +4,9 @@
  */
 import { execSync } from 'node:child_process'
 
-const API = 'http://127.0.0.1:54321'
-const ANON = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+// SUPABASE_URL を渡せば本番にも同じ攻撃を仕掛けられる
+const API = process.env.SUPABASE_URL || 'http://127.0.0.1:54321'
+const ANON = process.env.SUPABASE_ANON || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 
 /**
  * 攻撃の下ごしらえ（被害者役のユーザーを作る）にだけ管理者の鍵を使う。
@@ -13,6 +14,7 @@ const ANON = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
  */
 function localSecret() {
   if (process.env.SUPABASE_SECRET) return process.env.SUPABASE_SECRET
+  if (process.env.SUPABASE_URL) throw new Error('本番を叩くときは SUPABASE_SECRET を渡すこと')
   // 前置きの行が混ざるので、最初の { から後ろだけを読む
   const out = execSync('supabase status -o json', { encoding: 'utf8' })
   return JSON.parse(out.slice(out.indexOf('{'))).SECRET_KEY
