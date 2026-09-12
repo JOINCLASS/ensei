@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
+import { redeemInvite } from '@/lib/invites'
 import { oshiStyle } from '@/lib/logic'
 import type { ColorId, Status } from '@/lib/types'
 
@@ -72,7 +73,7 @@ function clearFlowCookies() {
   }
 }
 
-export function LoginForm() {
+export function LoginForm({ inviteCode }: { inviteCode?: string } = {}) {
   const router = useRouter()
   const [step, setStep] = useState<'email' | 'code'>('email')
   const [email, setEmail] = useState('')
@@ -125,6 +126,16 @@ export function LoginForm() {
     if (!value) return setErr('メールアドレスを入れてください。')
     setBusy(true)
     setErr('')
+
+    // 招待から来た人は、コードを送る前にアカウントを作る
+    if (inviteCode) {
+      const res = await redeemInvite(inviteCode, value)
+      if (res.error) {
+        setBusy(false)
+        return setErr(res.error)
+      }
+    }
+
     // 本番は新規登録を閉じている。shouldCreateUser を true にすると、
     // 既に登録済みの人でも「登録しようとした」と見なされて弾かれる。
     const { error } = await createClient().auth.signInWithOtp({
@@ -173,7 +184,11 @@ export function LoginForm() {
       <section className="empty">
         {step === 'email' ? (
           <>
-            <p>このアプリは招待制です。<br />パスワードはありません。<br />登録されたメールアドレスに、<br />6桁のコードをお送りします。</p>
+            {inviteCode ? (
+              <p>招待されています。<br />パスワードはありません。<br />メールアドレスを入れると、<br />6桁のコードをお送りします。</p>
+            ) : (
+              <p>このアプリは招待制です。<br />パスワードはありません。<br />登録されたメールアドレスに、<br />6桁のコードをお送りします。</p>
+            )}
             <label className="field" style={{ textAlign: 'left' }}>
               <span>メールアドレス</span>
               <input
@@ -188,7 +203,9 @@ export function LoginForm() {
             </label>
             <p className="err" hidden={!err}>{err}</p>
             <div className="btns">
-              <button className="btn" onClick={sendCode} disabled={busy}>コードを送る</button>
+              <button className="btn" onClick={sendCode} disabled={busy}>
+                {inviteCode ? 'はじめる' : 'コードを送る'}
+              </button>
             </div>
           </>
         ) : (

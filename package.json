@@ -12,7 +12,7 @@
     "icons": "node scripts/make-icons.mjs",
     "code": "node --env-file=.env.local scripts/code.mjs",
     "sample": "node scripts/sample.mjs",
-    "e2e": "npm run verify && npm run behaviour && npm run sample && npm run walkthrough && npm run walkthrough2 && npm run session",
+    "e2e": "npm run verify && npm run behaviour && npm run sample && npm run walkthrough && npm run walkthrough2 && npm run session && npm run invite",
     "video": "bash scripts/videos-to-mp4.sh",
     "walkthrough": "node scripts/walkthrough.mjs",
     "walkthrough2": "node scripts/walkthrough2.mjs",
@@ -20,14 +20,16 @@
     "prod:check": "node --env-file=.env.local scripts/prod-check.mjs",
     "prod:security": "node --env-file=.env.local scripts/security.mjs",
     "session": "node scripts/session.mjs",
-    "prod:invite": "node --env-file=.env.local scripts/invite.mjs"
+    "prod:invite": "node --env-file=.env.local scripts/invite.mjs",
+    "invite": "node scripts/invite-link.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.7",
     "@supabase/supabase-js": "^2.116.0",
     "next": "^16.3.5",
     "react": "^19.3.0",
-    "react-dom": "^19.3.0"
+    "react-dom": "^19.3.0",
+    "server-only": "^0.0.1"
   },
   "devDependencies": {
     "@playwright/test": "^1.63.0",
