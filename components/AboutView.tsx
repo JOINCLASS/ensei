@@ -120,6 +120,37 @@ export function AboutView({ signedIn }: { signedIn: boolean }) {
         </p>
       </section>
 
+      <p className="summary" style={{ marginTop: 24 }}><b>困ったとき</b></p>
+      <section className="empty" style={{ textAlign: 'left' }}>
+        <p style={{ textAlign: 'left' }}>
+          うまく動かないときや、消えてしまったものがあるときは、
+          <a className="linkbtn" href="mailto:support@tehaimatome.com" style={{ padding: 0 }}>
+            support@tehaimatome.com
+          </a> まで送ってください。
+        </p>
+        <p style={{ textAlign: 'left' }}>
+          ひとりで作って動かしているので、返事に数日いただくことがあります。
+          いつ・どの画面で・何をしたときかを書いてもらえると助かります。
+        </p>
+      </section>
+
+      <p className="summary" style={{ marginTop: 24 }}><b>おことわり</b></p>
+      <section className="empty" style={{ textAlign: 'left' }}>
+        <p style={{ textAlign: 'left' }}>
+          このアプリは個人が無料で運営しています。予告なく止まったり、
+          内容が変わったり、終わったりすることがあります。
+        </p>
+        <p style={{ textAlign: 'left' }}>
+          手配そのものは代行しません。チケットや宿の申し込み、支払い、
+          当落の確認は、それぞれの公式のところで行ってください。
+          ここに書いた予定や状態はあくまで<b>控え</b>です。
+        </p>
+        <p style={{ textAlign: 'left' }}>
+          <b>大事な予定は、公式の画面やメールでも確かめてください。</b>
+          ここに書いた内容をもとに動いた結果については、責任を負いかねます。
+        </p>
+      </section>
+
       {signedIn && (
         <>
           <p className="summary" style={{ marginTop: 24 }}><b>持ち出す</b></p>
