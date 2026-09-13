@@ -23,7 +23,8 @@
     "prod:invite": "node --env-file=.env.local scripts/invite.mjs",
     "invite": "node scripts/invite-link.mjs",
     "feedback": "node scripts/feedback.mjs",
-    "account": "node scripts/account.mjs"
+    "account": "node scripts/account.mjs",
+    "stats": "node --env-file=.env.local scripts/stats.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.7",
