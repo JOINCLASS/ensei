@@ -137,8 +137,13 @@ export function AboutView({ signedIn }: { signedIn: boolean }) {
       <p className="summary" style={{ marginTop: 24 }}><b>おことわり</b></p>
       <section className="empty" style={{ textAlign: 'left' }}>
         <p style={{ textAlign: 'left' }}>
-          このアプリは個人が無料で運営しています。予告なく止まったり、
-          内容が変わったり、終わったりすることがあります。
+          いまは無料で使えます。個人で作って動かしているので、
+          不具合を直すのに時間がかかることがあります。
+        </p>
+        <p style={{ textAlign: 'left' }}>
+          料金をいただく形にするときや、サービスを終えるときは、
+          <b>前もってお知らせします。</b>終えるときは、
+          書き出していただく時間をとります。
         </p>
         <p style={{ textAlign: 'left' }}>
           手配そのものは代行しません。チケットや宿の申し込み、支払い、
