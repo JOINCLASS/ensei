@@ -10,6 +10,7 @@ import type { Trip } from '@/lib/types'
 import { TripCard } from './TripCard'
 import { TripSheet, type TripDraft } from './TripSheet'
 import { InviteSheet } from './InviteSheet'
+import { InstallSheet, useInstalled } from './InstallSheet'
 
 /** 参照HTMLの renderList() */
 export function ListView({ initialTrips }: { initialTrips: Trip[] }) {
@@ -18,6 +19,9 @@ export function ListView({ initialTrips }: { initialTrips: Trip[] }) {
   const [showPast, setShowPast] = useState(false)
   const [sheet, setSheet] = useState(false)
   const [invite, setInvite] = useState(false)
+  const [install, setInstall] = useState(false)
+  // ホーム画面から開いている人には、追加の案内を出さない
+  const installed = useInstalled()
   const [busy, setBusy] = useState(false)
 
   const sorted = [...trips].sort((a, b) => a.start.localeCompare(b.start))
@@ -89,6 +93,12 @@ export function ListView({ initialTrips }: { initialTrips: Trip[] }) {
           <br />
         </>
       )}
+      {installed === false && (
+        <>
+          <button className="linkbtn" onClick={() => setInstall(true)}>ホーム画面に追加</button>
+          <br />
+        </>
+      )}
       <button className="linkbtn" onClick={() => setInvite(true)}>友だちを招待</button>
       <br />
       <button className="linkbtn" onClick={() => router.push('/about')}>このアプリについて</button>
@@ -113,6 +123,7 @@ export function ListView({ initialTrips }: { initialTrips: Trip[] }) {
         {footer}
         {sheet && <TripSheet trip={null} onClose={() => setSheet(false)} onSave={save} />}
         {invite && <InviteSheet onClose={() => setInvite(false)} />}
+        {install && <InstallSheet onClose={() => setInstall(false)} />}
       </>
     )
   }
@@ -152,7 +163,8 @@ export function ListView({ initialTrips }: { initialTrips: Trip[] }) {
       )}
       {footer}
       {sheet && <TripSheet trip={null} onClose={() => setSheet(false)} onSave={save} />}
-        {invite && <InviteSheet onClose={() => setInvite(false)} />}
+      {invite && <InviteSheet onClose={() => setInvite(false)} />}
+      {install && <InstallSheet onClose={() => setInstall(false)} />}
     </>
   )
 }

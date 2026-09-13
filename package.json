@@ -24,7 +24,8 @@
     "invite": "node scripts/invite-link.mjs",
     "feedback": "node scripts/feedback.mjs",
     "account": "node scripts/account.mjs",
-    "stats": "node --env-file=.env.local scripts/stats.mjs"
+    "stats": "node --env-file=.env.local scripts/stats.mjs",
+    "test:install": "node scripts/install.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.7",

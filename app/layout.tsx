@@ -25,9 +25,21 @@ export const viewport: Viewport = {
   themeColor: '#EEEDF4',
 }
 
+/**
+ * Androidの「ホーム画面に追加」の合図は、ページを開いた直後に一度だけ飛ぶ。
+ * 画面の組み立て（ハイドレーション）を待ってから聞き始めると取りこぼすので、
+ * いちばん早いここで受け取って、取っておく。InstallSheet が後から拾う。
+ */
+const catchInstallPrompt = `addEventListener('beforeinstallprompt',function(e){
+e.preventDefault();window.__bip=e;dispatchEvent(new Event('bip'))});
+addEventListener('appinstalled',function(){window.__bip=null;dispatchEvent(new Event('bip'))})`
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="ja" className={zenMaru.variable}>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: catchInstallPrompt }} />
+      </head>
       <body>
         <main className="app" id="app">{children}</main>
         <Toast />
