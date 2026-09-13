@@ -137,13 +137,17 @@ export function AboutView({ signedIn }: { signedIn: boolean }) {
       <p className="summary" style={{ marginTop: 24 }}><b>おことわり</b></p>
       <section className="empty" style={{ textAlign: 'left' }}>
         <p style={{ textAlign: 'left' }}>
-          いまは無料で使えます。個人で作って動かしているので、
-          不具合を直すのに時間がかかることがあります。
+          いまは無料で使えます。個人で作って動かしています。
         </p>
         <p style={{ textAlign: 'left' }}>
-          料金をいただく形にするときや、サービスを終えるときは、
-          <b>前もってお知らせします。</b>終えるときは、
-          書き出していただく時間をとります。
+          <b>だまって終わらせることはしません。</b>
+          料金をいただく形にするときや、どうしても続けられなくなったときは、
+          必ず前もってお知らせして、書き出していただく時間をとります。
+        </p>
+        <p style={{ textAlign: 'left' }}>
+          入力した内容は、いつでも手元に書き出せます。
+          不具合を直すのにお時間をいただくことがあるので、
+          お気づきのことは「困ったとき」からお知らせください。
         </p>
         <p style={{ textAlign: 'left' }}>
           手配そのものは代行しません。チケットや宿の申し込み、支払い、
