@@ -4,13 +4,10 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { isPast, stats } from '@/lib/logic'
 import { clearSample, createTrip, insertSample } from '@/lib/db'
-import { createClient } from '@/lib/supabase/client'
 import { toast } from '@/lib/toast'
 import type { Trip } from '@/lib/types'
 import { TripCard } from './TripCard'
 import { TripSheet, type TripDraft } from './TripSheet'
-import { InviteSheet } from './InviteSheet'
-import { InstallSheet, useInstalled } from './InstallSheet'
 
 /** 参照HTMLの renderList() */
 export function ListView({ initialTrips }: { initialTrips: Trip[] }) {
@@ -23,10 +20,6 @@ export function ListView({ initialTrips }: { initialTrips: Trip[] }) {
     () => initialTrips.length > 0 && initialTrips.every(isPast),
   )
   const [sheet, setSheet] = useState(false)
-  const [invite, setInvite] = useState(false)
-  const [install, setInstall] = useState(false)
-  // ホーム画面から開いている人には、追加の案内を出さない
-  const installed = useInstalled()
   const [busy, setBusy] = useState(false)
 
   const sorted = [...trips].sort((a, b) => a.start.localeCompare(b.start))
@@ -73,12 +66,6 @@ export function ListView({ initialTrips }: { initialTrips: Trip[] }) {
     setBusy(false)
   }
 
-  async function signOut() {
-    await createClient().auth.signOut()
-    router.replace('/login')
-    router.refresh()
-  }
-
   const head = (
     <header className="top">
       <h1>手配まとめ</h1>
@@ -88,29 +75,14 @@ export function ListView({ initialTrips }: { initialTrips: Trip[] }) {
     </header>
   )
 
-  const footer = (
+  // 中身が無いときは、空の枠ごと出さない
+  const footer = trips.some((t) => t.isSample) ? (
     <p className="note">
-      {trips.some((t) => t.isSample) && (
-        <>
-          <button className="linkbtn" onClick={tidySample} disabled={busy}>
-            {busy ? '片づけています…' : 'サンプルを片づける'}
-          </button>
-          <br />
-        </>
-      )}
-      {installed === false && (
-        <>
-          <button className="linkbtn" onClick={() => setInstall(true)}>ホーム画面に追加</button>
-          <br />
-        </>
-      )}
-      <button className="linkbtn" onClick={() => setInvite(true)}>友だちを招待</button>
-      <br />
-      <button className="linkbtn" onClick={() => router.push('/about')}>このアプリについて</button>
-      <br />
-      <button className="linkbtn" onClick={signOut}>ログアウト</button>
+      <button className="linkbtn" onClick={tidySample} disabled={busy}>
+        {busy ? '片づけています…' : 'サンプルを片づける'}
+      </button>
     </p>
-  )
+  ) : null
 
   if (!trips.length) {
     return (
@@ -127,8 +99,6 @@ export function ListView({ initialTrips }: { initialTrips: Trip[] }) {
         </section>
         {footer}
         {sheet && <TripSheet trip={null} onClose={() => setSheet(false)} onSave={save} />}
-        {invite && <InviteSheet onClose={() => setInvite(false)} />}
-        {install && <InstallSheet onClose={() => setInstall(false)} />}
       </>
     )
   }
@@ -168,8 +138,6 @@ export function ListView({ initialTrips }: { initialTrips: Trip[] }) {
       )}
       {footer}
       {sheet && <TripSheet trip={null} onClose={() => setSheet(false)} onSave={save} />}
-      {invite && <InviteSheet onClose={() => setInvite(false)} />}
-      {install && <InstallSheet onClose={() => setInstall(false)} />}
     </>
   )
 }

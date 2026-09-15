@@ -8,12 +8,24 @@ import { createClient } from '@/lib/supabase/client'
 import { build, FILENAME, type Format } from '@/lib/export'
 import { toast } from '@/lib/toast'
 import { DeleteButton } from './Sheet'
+import { InviteSheet } from './InviteSheet'
+import { InstallSheet, useInstalled } from './InstallSheet'
 
 /** 参照HTMLにない画面。既存のトークンと部品だけで組む。 */
 export function AboutView({ signedIn }: { signedIn: boolean }) {
   const router = useRouter()
   // どのボタンを押したかで文言を変えるため、真偽ではなく種類を持つ
   const [busy, setBusy] = useState<false | Format | 'delete'>(false)
+  const [invite, setInvite] = useState(false)
+  const [install, setInstall] = useState(false)
+  // ホーム画面から開いている人には、追加の案内を出さない
+  const installed = useInstalled()
+
+  async function signOut() {
+    await createClient().auth.signOut()
+    router.replace('/login')
+    router.refresh()
+  }
 
   /** 入力した内容を手元に持ち出す。データベースに自動バックアップが無いので、これが唯一の保険 */
   async function exportData(format: Format) {
@@ -53,8 +65,9 @@ export function AboutView({ signedIn }: { signedIn: boolean }) {
           ‹ もどる
         </button>
       </div>
-      <header className="top"><h1>このアプリについて</h1></header>
+      <header className="top"><h1>設定</h1></header>
 
+      <p className="summary" style={{ marginTop: 4 }}><b>このアプリについて</b></p>
       <section className="empty" style={{ textAlign: 'left' }}>
         <p style={{ textAlign: 'left' }}>
           遠征の予定を、どの旅の何がまだかで<br />ひと目で見られるようにする道具です。
@@ -157,6 +170,23 @@ export function AboutView({ signedIn }: { signedIn: boolean }) {
 
       {signedIn && (
         <>
+          <p className="summary" style={{ marginTop: 24 }}><b>できること</b></p>
+          <section className="empty">
+            <div className="btns">
+              {installed === false && (
+                <button className="btn ghost wide" onClick={() => setInstall(true)}>
+                  ホーム画面に追加
+                </button>
+              )}
+              <button className="btn ghost wide" onClick={() => setInvite(true)}>
+                友だちを招待
+              </button>
+              <button className="btn ghost wide" onClick={signOut}>
+                ログアウト
+              </button>
+            </div>
+          </section>
+
           <p className="summary" style={{ marginTop: 24 }}><b>持ち出す</b></p>
           <section className="empty">
             <p>
@@ -195,6 +225,9 @@ export function AboutView({ signedIn }: { signedIn: boolean }) {
           ‹ もどる
         </button>
       </p>
+
+      {invite && <InviteSheet onClose={() => setInvite(false)} />}
+      {install && <InstallSheet onClose={() => setInstall(false)} />}
     </>
   )
 }

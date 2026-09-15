@@ -27,7 +27,9 @@ for (const [name, ua] of Object.entries(UA)) {
   const page = await ctx.newPage()
   await clearMail()
   await login(page, mail(name.replace(/[^a-z]/gi, '') || 'x'))
-  await page.waitForSelector('.note')
+  // ホーム画面に追加は設定（/about）へ移した
+  await page.goto(`${APP}/about`)
+  await page.waitForSelector('text=できること')
 
   const shown = await page.getByRole('button', { name: 'ホーム画面に追加', exact: true }).count()
   if (!shown) {
@@ -73,7 +75,8 @@ for (const [name, ua] of Object.entries(UA)) {
   const page = await ctx.newPage()
   await clearMail()
   await login(page, mail('oneTap'))
-  await page.waitForSelector('.note')
+  await page.goto(`${APP}/about`)
+  await page.waitForSelector('text=できること')
   await tap(page, 'ホーム画面に追加')
   await page.waitForSelector('.sheet')
   const text = await page.locator('.sheet').innerText()
@@ -100,7 +103,8 @@ await ctx.addInitScript(() => {
 const page = await ctx.newPage()
 await clearMail()
 await login(page, mail('standalone'))
-await page.waitForSelector('.note')
+await page.goto(`${APP}/about`)
+await page.waitForSelector('text=できること')
 const hidden = (await page.getByRole('button', { name: 'ホーム画面に追加', exact: true }).count()) === 0
 console.log(`${hidden ? '✓' : '✗'} 追加済みの人には入口を出さない`)
 if (!hidden) ng++

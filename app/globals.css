@@ -9,6 +9,9 @@
   /* ブランドの差し色。チラシの実測値。 */
   --primary:#45C8F9;   /* 水色：手配済み、選んでいるもの */
   --secondary:#F88AC1; /* 桃色：もうひとつの旅、補助 */
+  /* 水色を文字や線に使うための濃いほう。#45C8F9 は白の上で 1.93:1 しかなく読めない。
+     これなら白の上で 5.33:1、背景の上で 4.76:1。 */
+  --primary-ink:#0A72A2;
 
   --font:var(--font-zen-maru),'Zen Maru Gothic','Hiragino Maru Gothic ProN','Hiragino Sans','Noto Sans JP',system-ui,sans-serif;
 }
@@ -20,7 +23,7 @@ button,input,select,textarea{font:inherit;color:inherit}
 button{cursor:pointer;-webkit-tap-highlight-color:transparent}
 :focus-visible{outline:3px solid var(--ink);outline-offset:2px}
 .vh{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
-.app{max-width:480px;margin:0 auto;padding:max(16px,env(safe-area-inset-top)) 16px calc(48px + env(safe-area-inset-bottom))}
+.app{max-width:480px;margin:0 auto;padding:max(16px,env(safe-area-inset-top)) 16px calc(96px + env(safe-area-inset-bottom))}
 
 /* ボタン */
 .btn{border:none;border-radius:999px;padding:10px 16px;font-weight:700;background:var(--ink);color:#fff;font-size:15px;white-space:nowrap}
@@ -151,3 +154,17 @@ button{cursor:pointer;-webkit-tap-highlight-color:transparent}
   .punch-btn.pop,.sheet{animation:none}
   .punch-btn,.prog-bar span{transition:none}
 }
+
+/* 下の行き先。線だけの絵にして、選んでいるほうだけ水色にする。
+   携帯でもパソコンでも同じ幅（480px）に収め、下に貼り付ける。 */
+.tabbar{position:fixed;left:0;right:0;bottom:0;z-index:5;background:var(--paper);
+  border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom)}
+.tabbar ul{max-width:480px;margin:0 auto;padding:0;list-style:none;display:flex}
+.tabbar li{flex:1}
+.tabbar a{display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 0 7px;
+  text-decoration:none;color:var(--muted);font-size:11px;font-weight:700}
+.tabbar svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.7;
+  stroke-linecap:round;stroke-linejoin:round}
+.tabbar a[aria-current=page]{color:var(--primary-ink)}
+.tabbar a[aria-current=page] svg{stroke:var(--primary-ink)}
+@media (hover:hover){.tabbar a:hover{color:var(--ink)}}

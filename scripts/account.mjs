@@ -38,6 +38,9 @@ const p = await ctx.newPage()
 await clearMail(); await login(p, ME); await p.waitForTimeout(1000)
 await tap(p, 'サンプルで見てみる'); await p.waitForSelector('.ticket', { timeout: 60000 })
 await p.waitForTimeout(800)
+// 下の行き先から設定へ
+await p.getByRole('link', { name: '設定', exact: true }).click()
+await p.waitForURL(`${APP}/about`, { timeout: 20000 })
 await tap(p, '友だちを招待')
 // 発行は通信を挟むので、リンクが出るまで待つ
 await p.waitForFunction(
@@ -50,9 +53,9 @@ ok((await count('trips', 'user_id', myId)) === 4, '自分の旅が4件')
 const mine = await count('invites', 'created_by', myId)
 ok(mine === 1, '自分の招待が1枚', mine)
 
-step('3. このアプリについて を開く')
+step('3. 設定 を開く')
 await p.waitForTimeout(600)
-await tap(p, 'このアプリについて')
+await p.getByRole('link', { name: '設定', exact: true }).click()
 await p.waitForURL(`${APP}/about`, { timeout: 20000 })
 await p.waitForTimeout(800)
 ok(await p.locator('text=あなたのデータは、あなたにしか見えません').isVisible(), '説明が出ている')

@@ -23,7 +23,8 @@ await scan('ログイン画面')
 
 await clearMail()
 await login(page, `a11y-${Date.now()}@example.com`.toLowerCase())
-await page.waitForSelector('.note')
+// 下の行き先は、ログイン後どの画面にも出る
+await page.waitForSelector('.tabbar')
 await scan('一覧（まっさら）')
 
 await tap(page, 'サンプルで見てみる')
@@ -35,7 +36,7 @@ await page.waitForURL(/\/trips\//)
 await scan('旅の詳細')
 
 await page.goto(`${APP}/about`)
-await scan('このアプリについて')
+await scan('設定')
 
 console.log(`\n合計 ${total} 件`)
 await browser.close()

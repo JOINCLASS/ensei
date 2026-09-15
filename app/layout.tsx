@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next'
 import { Zen_Maru_Gothic } from 'next/font/google'
+import { BottomNav } from '@/components/BottomNav'
 import { Toast } from '@/components/Toast'
 import './globals.css'
 
@@ -46,6 +47,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body>
         <main className="app" id="app">{children}</main>
+        <BottomNav />
         <Toast />
       </body>
     </html>

@@ -22,12 +22,16 @@ await clearMail()
 await login(host, HOST)
 await host.waitForTimeout(1200)
 
-ok(await host.locator('text=友だちを招待').isVisible(), '一覧に「友だちを招待」がある')
+// 招待は設定（/about）へ移した。下の行き先から行ける
+await host.goto(`${APP}/about`)
+await host.waitForSelector('text=できること')
+ok(await host.getByRole('button', { name: '友だちを招待', exact: true }).isVisible(), '設定に「友だちを招待」がある')
 await tap(host, '友だちを招待')
 await host.waitForTimeout(2000)
 const url = await host.locator('input[readonly]').inputValue()
 ok(/\/invite\/[0-9a-f-]{36}$/.test(url), '招待リンクが発行される', url)
-ok(await host.locator('text=旅の中身は共有されません').isVisible(), '共有されない旨が書いてある')
+// 設定の本文にも同じ言い回しがあるので、シートの中だけを見る
+ok(await host.locator('.sheet').getByText('旅の中身は共有されません').isVisible(), '共有されない旨が書いてある')
 await tap(host, 'とじる')
 
 // 招待制は廃止した（2026-09-15）。招待リンクは「友だちに教える近道」であって、
@@ -70,11 +74,15 @@ ok(await second.locator('text=すでに使われています').isVisible(), '2�
 await ctxC.close()
 
 step('5. 招待した人と、された人のデータは混ざらない')
-await host.reload()
+// 招待は設定から出したので、いま host は設定にいる。一覧へ戻して確かめる
+await host.goto(`${APP}/`)
 await host.waitForTimeout(1200)
 ok((await host.content()).includes('遠征の予定を登録すると'), '招待した人の一覧も空のまま（相手の旅は見えない）')
 
 step('6. 未使用の招待は5枚まで')
+// 招待は設定にある
+await host.goto(`${APP}/about`)
+await host.waitForSelector('text=できること')
 let capped = false
 for (let i = 0; i < 6; i++) {
   await tap(host, '友だちを招待')

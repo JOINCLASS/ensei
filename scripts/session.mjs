@@ -64,6 +64,9 @@ const after = dec((await ctx2.cookies()).find((x) => /auth-token(\.\d+)?$/.test(
 ok(after.access_token !== oldToken, 'トークンが自動で更新された')
 
 step('[ログアウトは効くか]')
+// ログアウトは設定（/about）へ移した
+await page2.goto(`${APP}/about`)
+await page2.waitForSelector('text=できること')
 await page2.getByRole('button', { name: 'ログアウト', exact: true }).click()
 await page2.waitForTimeout(2000)
 ok(page2.url().endsWith('/login'), 'ログアウトするとログイン画面にもどる', page2.url().replace(APP, ''))
