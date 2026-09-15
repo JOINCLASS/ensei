@@ -3,13 +3,13 @@
 import { useRef, useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { STATUS, TYPES, itemLabel, itemSub, md, nextStatus, nights, oshiStyle, stats, wd } from '@/lib/logic'
-import { createItem, deleteItem, deleteTrip, setItemStatus, updateItem, updateTrip } from '@/lib/db'
+import { createItem, deleteItem, deleteTrip, duplicateTrip, setItemStatus, updateItem, updateTrip } from '@/lib/db'
 import { toast } from '@/lib/toast'
 import type { Item, Trip } from '@/lib/types'
 import { ItemSheet, type ItemDraft } from './ItemSheet'
 import { TripSheet, type TripDraft } from './TripSheet'
 
-type Sheet = { kind: 'trip' } | { kind: 'item'; item: Item | null } | null
+type Sheet = { kind: 'trip' } | { kind: 'copy' } | { kind: 'item'; item: Item | null } | null
 
 /**
  * この画面では router.refresh() を呼ばない。
@@ -24,6 +24,7 @@ type Sheet = { kind: 'trip' } | { kind: 'item'; item: Item | null } | null
 export function TripView({ initialTrip }: { initialTrip: Trip }) {
   const router = useRouter()
   const [trip, setTrip] = useState(initialTrip)
+  const [copying, setCopying] = useState(false)
   const [sheet, setSheet] = useState<Sheet>(null)
   const [leaving, startLeaving] = useTransition()
 
@@ -107,6 +108,21 @@ export function TripView({ initialTrip }: { initialTrip: Trip }) {
     }
   }
 
+  /** ツアーの2公演目のように、同じ形で日付だけ違う旅を作る */
+  async function copyTrip(d: TripDraft) {
+    if (copying) return
+    setCopying(true)
+    try {
+      const made = await duplicateTrip(trip.id, d)
+      setSheet(null)
+      toast('旅を複製しました')
+      router.push(`/trips/${made.id}`)
+    } catch {
+      setCopying(false)
+      failed()
+    }
+  }
+
   return (
     <>
       <div className="bar">
@@ -142,8 +158,17 @@ export function TripView({ initialTrip }: { initialTrip: Trip }) {
       {!total && <p className="note">手配の項目がありません。下のボタンから追加できます。</p>}
       <button className="add-item" onClick={() => setSheet({ kind: 'item', item: null })}>＋ 手配を追加</button>
 
+      <p className="note">
+        <button className="linkbtn" onClick={() => setSheet({ kind: 'copy' })}>
+          この旅を複製（次の公演をつくる）
+        </button>
+      </p>
+
       {sheet?.kind === 'trip' && (
         <TripSheet trip={trip} onClose={() => setSheet(null)} onSave={saveTrip} onDelete={removeTrip} />
+      )}
+      {sheet?.kind === 'copy' && (
+        <TripSheet trip={trip} mode="copy" onClose={() => setSheet(null)} onSave={copyTrip} />
       )}
       {sheet?.kind === 'item' && (
         <ItemSheet

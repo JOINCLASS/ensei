@@ -24,6 +24,42 @@ export async function createTrip(d: TripDraft, isSample = false): Promise<Trip> 
   return toTrip(full)
 }
 
+/**
+ * 旅を複製する。ツアーの2公演目のように、同じ形で日付だけ違うものを作るため。
+ *
+ * 引き継ぐのは、手配の並びと種類・名前・区間・メモ。
+ * 日付と手配の状態は引き継がない。前の公演の「手配済み」を持ち込むと、
+ * まだ何もしていないのに済んだように見えて、取り返しのつかない見落としになる。
+ */
+export async function duplicateTrip(sourceId: string, d: TripDraft): Promise<Trip> {
+  const source = check(
+    await db()
+      .from('arrangements')
+      .select('type,name,from_place,to_place,memo,position')
+      .eq('trip_id', sourceId)
+      .order('position'),
+  )
+
+  const row = check(
+    await db().from('trips').insert(tripFields(d)).select('id').single(),
+  )
+
+  // 旅を作るとDBのトリガが4項目を入れる。複製では元の並びをそのまま使うので、
+  // いったん取り除いてから入れ直す。
+  check(await db().from('arrangements').delete().eq('trip_id', row.id).select('id'))
+  if (source.length) {
+    check(
+      await db()
+        .from('arrangements')
+        .insert(source.map((a) => ({ ...a, trip_id: row.id, status: 'todo' as const })))
+        .select('id'),
+    )
+  }
+
+  const full = check(await db().from('trips').select(TRIP_SELECT).eq('id', row.id).single())
+  return toTrip(full)
+}
+
 export async function updateTrip(id: string, d: TripDraft) {
   check(await db().from('trips').update(tripFields(d)).eq('id', id).select('id'))
 }

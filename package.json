@@ -31,7 +31,8 @@
     "test:forms": "node scripts/forms.mjs",
     "test:offline": "node scripts/offline.mjs",
     "test:a11y": "node scripts/a11y.mjs",
-    "test:google": "node scripts/google.mjs"
+    "test:google": "node scripts/google.mjs",
+    "test:duplicate": "node scripts/duplicate.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.7",

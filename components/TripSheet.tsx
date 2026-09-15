@@ -9,20 +9,24 @@ export type TripDraft = Pick<Trip, 'title' | 'place' | 'start' | 'end' | 'color'
 
 export function TripSheet({
   trip,
+  mode = trip ? 'edit' : 'new',
   onClose,
   onSave,
   onDelete,
 }: {
   trip: Trip | null
+  /** copy は、元の旅の中身を持ったまま日付だけ空にして開く */
+  mode?: 'new' | 'edit' | 'copy'
   onClose: () => void
   onSave: (d: TripDraft) => void | Promise<void>
   onDelete?: () => void
 }) {
-  const isNew = !trip
+  const isNew = mode !== 'edit'
   const [title, setTitle] = useState(trip?.title ?? '')
   const [place, setPlace] = useState(trip?.place ?? '')
-  const [start, setStart] = useState(trip?.start ?? '')
-  const [end, setEnd] = useState(trip?.end ?? '')
+  // 複製では日付を引き継がない。前の公演の日付が残っていると気づきにくい
+  const [start, setStart] = useState(mode === 'copy' ? '' : (trip?.start ?? ''))
+  const [end, setEnd] = useState(mode === 'copy' ? '' : (trip?.end ?? ''))
   const [color, setColor] = useState<ColorId>(trip?.color ?? 'purple')
   const [memo, setMemo] = useState(trip?.memo ?? '')
   const [err, setErr] = useState('')
@@ -48,7 +52,7 @@ export function TripSheet({
 
   return (
     <Sheet id="tripSheet" labelledBy="tsTitle" onClose={onClose}>
-      <h2 id="tsTitle">{isNew ? '旅を追加' : '旅を編集'}</h2>
+      <h2 id="tsTitle">{mode === 'copy' ? '旅を複製' : mode === 'new' ? '旅を追加' : '旅を編集'}</h2>
       <label className="field">
         <span>公演・イベント名</span>
         <input name="title" value={title} placeholder="例：ツアー大阪公演" onChange={(e) => setTitle(e.target.value)} />
@@ -89,9 +93,15 @@ export function TripSheet({
         <span>メモ</span>
         <textarea name="memo" rows={2} placeholder="例：2日目は昼公演" value={memo} onChange={(e) => setMemo(e.target.value)} />
       </label>
-      {isNew && (
+      {mode === 'new' && (
         <p className="note" style={{ margin: '0 0 12px', textAlign: 'left' }}>
           チケット・行き・帰り・ホテルの4項目が自動で入ります。
+        </p>
+      )}
+      {mode === 'copy' && (
+        <p className="note" style={{ margin: '0 0 12px', textAlign: 'left' }}>
+          手配の項目はそのまま引き継ぎます。<br />
+          日付と手配の状態は引き継ぎません。
         </p>
       )}
       <p className="err" hidden={!err}>{err}</p>
@@ -99,7 +109,9 @@ export function TripSheet({
         {!isNew && onDelete && <DeleteButton onConfirm={onDelete} />}
         <button type="button" className="btn ghost" onClick={onClose}>やめる</button>
         <button type="button" className="btn wide" onClick={save} disabled={saving}>
-          {saving ? (isNew ? '追加しています…' : '保存しています…') : isNew ? '追加する' : '保存する'}
+          {saving
+            ? mode === 'edit' ? '保存しています…' : '追加しています…'
+            : mode === 'copy' ? '複製する' : mode === 'new' ? '追加する' : '保存する'}
         </button>
       </div>
     </Sheet>
