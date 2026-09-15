@@ -34,7 +34,9 @@
     "test:google": "node scripts/google.mjs",
     "test:duplicate": "node scripts/duplicate.mjs",
     "test:reorder": "node scripts/reorder.mjs",
-    "test:export": "node scripts/export.mjs"
+    "test:export": "node scripts/export.mjs",
+    "x-assets": "node scripts/x-assets.mjs",
+    "x-copy": "node scripts/x-copy.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.7",
