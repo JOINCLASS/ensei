@@ -27,6 +27,8 @@ const csp = [
   `script-src 'self' 'unsafe-inline'${dev ? " 'unsafe-eval'" : ''}`,
   `connect-src 'self' ${supabase} ${supabaseWs}`.trim(),
   "manifest-src 'self'",
+  // 圏外用の Service Worker（public/sw.js）。同じ置き場のものだけ許す
+  "worker-src 'self'",
   ...(dev ? [] : ['upgrade-insecure-requests']),
 ].join('; ')
 
