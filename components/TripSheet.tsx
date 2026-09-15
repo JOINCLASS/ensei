@@ -27,7 +27,8 @@ export function TripSheet({
   // 複製では日付を引き継がない。前の公演の日付が残っていると気づきにくい
   const [start, setStart] = useState(mode === 'copy' ? '' : (trip?.start ?? ''))
   const [end, setEnd] = useState(mode === 'copy' ? '' : (trip?.end ?? ''))
-  const [color, setColor] = useState<ColorId>(trip?.color ?? 'purple')
+  // 新しい旅は、ブランドの水色から始める
+  const [color, setColor] = useState<ColorId>(trip?.color ?? 'sky')
   const [memo, setMemo] = useState(trip?.memo ?? '')
   const [err, setErr] = useState('')
   const [saving, setSaving] = useState(false)

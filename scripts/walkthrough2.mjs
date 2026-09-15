@@ -99,8 +99,9 @@ ok(JSON.stringify(nights) === JSON.stringify(['2泊', '1泊']), '半券の泊数
 // 旅ごとに推し色が違うこと（半券の左の帯の色）
 const edges = await page.locator('.ticket').evaluateAll((els) =>
   els.map((el) => getComputedStyle(el.querySelector('.stub')).borderLeftColor))
-ok(edges[0] === 'rgb(61, 182, 232)', '1枚目は水色', edges[0])
-ok(edges[1] === 'rgb(247, 111, 168)', '2枚目はピンク', edges[1])
+// 宣伝チラシから取った色。#45C8F9（水色）と #F88AC1（桃色）
+ok(edges[0] === 'rgb(69, 200, 249)', '1枚目は水色', edges[0])
+ok(edges[1] === 'rgb(248, 138, 193)', '2枚目は桃色', edges[1])
 
 const lines = await page.locator('.todo-line').allTextContents()
 ok(lines[0] === 'まだ帰り、ホテル', '1枚目のまだ', lines[0])

@@ -12,11 +12,11 @@ import { mkdirSync } from 'node:fs'
  *  - 地は既定の推し色の紫。29px でも輪郭が立つよう、白との明度差を大きく取る。
  */
 const PAPER = '#FFFFFF'
-const MID = '#8E4EC6'   // 既定の推し色。これが基準
+const MID = '#45C8F9'   // 宣伝チラシの水色。ブランドの基準色
 // ICON_FLAT=1 を付けると、紫の単色になる（参照HTMLのトークンそのまま）
 const FLAT = process.env.ICON_FLAT === '1'
-const TOP = FLAT ? MID : '#A066D8'      // 紫を挟む上下の色。差はわずかに留める
-const BOTTOM = FLAT ? MID : '#7C3EAE'
+const TOP = FLAT ? MID : '#7FDCFB'      // 水色を挟む上下の色。差はわずかに留める
+const BOTTOM = FLAT ? MID : '#A69CFA'  // 下は藤色へ。チラシのロゴと同じ流れ
 
 /** scale: 1 で塗り足しなし。maskable 用に中身を縮めるときに使う */
 function svg(scale = 1) {
@@ -73,16 +73,16 @@ await shoot('app/apple-icon.png', 180, 1)   // iOS のホーム画面
 const s = svg(1)
 const sizes = [180, 120, 96, 60, 40, 29, 16]
 const page = await browser.newPage({ viewport: { width: 720, height: 260 }, deviceScaleFactor: 2 })
-await page.setContent(`<body style="margin:0;background:#EEEDF4;padding:24px;font:500 11px system-ui;color:#6E6A82">
+await page.setContent(`<body style="margin:0;background:#EFF2FB;padding:24px;font:500 11px system-ui;color:#5F6485">
   <div style="display:flex;align-items:flex-end;gap:18px;background:#fff;border-radius:14px;padding:20px">
   ${sizes.map((n) => `<div style="text-align:center">
     <div style="width:${n}px;height:${n}px;border-radius:${n * 0.22}px;overflow:hidden">${s.replace('width="512" height="512"', `width="${n}" height="${n}"`)}</div>
     <div style="margin-top:6px">${n}</div></div>`).join('')}
   </div>
-  <div style="display:flex;align-items:center;gap:18px;background:#221F33;border-radius:14px;padding:20px;margin-top:14px">
+  <div style="display:flex;align-items:center;gap:18px;background:#1B214B;border-radius:16px;padding:20px;margin-top:14px">
     <div style="width:96px;height:96px;border-radius:21px;overflow:hidden">${s.replace('width="512" height="512"', 'width="96" height="96"')}</div>
     <div style="width:96px;height:96px;border-radius:50%;overflow:hidden">${svg(0.9).replace('width="512" height="512"', 'width="96" height="96"')}</div>
-    <div style="color:#EEEDF4">左：iOS の角丸　右：Android の円マスク（maskable）</div>
+    <div style="color:#EFF2FB">左：iOS の角丸　右：Android の円マスク（maskable）</div>
   </div>
 </body>`)
 await page.screenshot({ path: 'shots/icons/_最終.png', fullPage: true })

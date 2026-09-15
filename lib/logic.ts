@@ -3,16 +3,24 @@ import type { ColorId, Item, Status, Trip } from './types'
 
 /* 参照HTML design/ensei.html の COLORS / TYPES / STATUS / 小道具 をそのまま移植 */
 
+/*
+ * 旅ごとの差し色。宣伝チラシの世界観に合わせて、淡く明るい側へそろえた。
+ * 原色は使わない。
+ *
+ * on（丸の中の✓の色）はすべて濃紺にしてある。チラシは白抜きだが、
+ * 水色の上の白は 1.93:1 しかなく、読みやすさの基準に届かない。
+ * 濃紺なら 7.97:1。見た目より、見えることを優先した。
+ */
 export const COLORS: { id: ColorId; name: string; hex: string; on: string }[] = [
-  { id: 'red', name: '赤', hex: '#E5484D', on: '#fff' },
-  { id: 'pink', name: 'ピンク', hex: '#F76FA8', on: '#fff' },
-  { id: 'orange', name: 'オレンジ', hex: '#F7934C', on: '#fff' },
-  { id: 'yellow', name: '黄', hex: '#F5C400', on: '#221F33' },
-  { id: 'green', name: '緑', hex: '#30A46C', on: '#fff' },
-  { id: 'sky', name: '水色', hex: '#3DB6E8', on: '#fff' },
-  { id: 'blue', name: '青', hex: '#3E63DD', on: '#fff' },
-  { id: 'purple', name: '紫', hex: '#8E4EC6', on: '#fff' },
-  { id: 'white', name: '白', hex: '#FFFFFF', on: '#221F33' },
+  { id: 'red', name: '珊瑚', hex: '#F2748A', on: '#1B214B' },
+  { id: 'pink', name: '桃', hex: '#F88AC1', on: '#1B214B' },
+  { id: 'orange', name: '橙', hex: '#FBA971', on: '#1B214B' },
+  { id: 'yellow', name: '黄', hex: '#F7CE5B', on: '#1B214B' },
+  { id: 'green', name: '緑', hex: '#5AC8A8', on: '#1B214B' },
+  { id: 'sky', name: '水色', hex: '#45C8F9', on: '#1B214B' },
+  { id: 'blue', name: '青', hex: '#6FA8FB', on: '#1B214B' },
+  { id: 'purple', name: '藤', hex: '#A69CFA', on: '#1B214B' },
+  { id: 'white', name: '白', hex: '#FFFFFF', on: '#1B214B' },
 ]
 
 export const TYPES = {
@@ -31,15 +39,16 @@ export const NAME_LABEL = {
 
 const WD = '日月火水木金土'
 
+/** 見つからないときは、ブランドの水色にする */
 export const colorOf = (id: string | undefined) =>
-  COLORS.find((c) => c.id === id) || COLORS[7]
+  COLORS.find((c) => c.id === id) || COLORS[5]
 
 export function oshiStyle(id: string | undefined): CSSProperties {
   const c = colorOf(id)
   return {
     '--oshi': c.hex,
     '--on-oshi': c.on,
-    '--oshi-edge': c.id === 'white' ? '#221F33' : c.hex,
+    '--oshi-edge': c.id === 'white' ? '#1B214B' : c.hex,
   } as CSSProperties
 }
 

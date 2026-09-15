@@ -3,14 +3,24 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#EEEDF4">
+<meta name="theme-color" content="#EFF2FB">
 <title>遠征の手配</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@500;700;900&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#EEEDF4; --paper:#FFFFFF; --ink:#221F33; --muted:#6E6A82; --line:#DCDAE6; --danger:#C0392B;
+  /* 宣伝チラシから取り出した色で組む。
+     背景は淡いラベンダー、面は白、文字は濃紺。
+     水色と桃色は「差し色」で、画面をカラフルにするためのものではない。
+
+     --muted は背景の上で 5.14:1、--ink は 13.74:1。どちらも基準を満たす。 */
+  --bg:#EFF2FB; --paper:#FFFFFF; --ink:#1B214B; --muted:#5F6485; --line:#DBE2F0; --danger:#C2415A;
+
+  /* ブランドの差し色。チラシの実測値。 */
+  --primary:#45C8F9;   /* 水色：手配済み、選んでいるもの */
+  --secondary:#F88AC1; /* 桃色：もうひとつの旅、補助 */
+
   --font:'Zen Maru Gothic','Hiragino Maru Gothic ProN','Hiragino Sans','Noto Sans JP',system-ui,sans-serif;
 }
 *{box-sizing:border-box}
@@ -37,15 +47,15 @@ button{cursor:pointer;-webkit-tap-highlight-color:transparent}
 .summary{margin:0 0 20px;color:var(--muted);font-size:14px;line-height:1.7}
 .summary b{color:var(--ink);font-weight:900}
 
-.ticket{--oshi:#8E4EC6;--on-oshi:#fff;--oshi-edge:#8E4EC6;
+.ticket{--oshi:var(--primary);--on-oshi:var(--ink);--oshi-edge:var(--primary);
   position:relative;display:grid;grid-template-columns:76px 1fr;width:100%;text-align:left;border:none;padding:0;margin:0 0 16px;
-  background:var(--paper);border-radius:14px}
+  background:var(--paper);border-radius:16px;box-shadow:0 2px 10px rgba(27,33,75,.05)}
 .ticket::before,.ticket::after{content:"";position:absolute;left:76px;width:18px;height:18px;border-radius:50%;background:var(--bg);transform:translateX(-50%)}
 .ticket::before{top:-9px}
 .ticket::after{bottom:-9px}
 .ticket.past{opacity:.55}
 .stub{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:14px 4px;
-  background:color-mix(in srgb,var(--oshi) 22%,#fff);border-left:6px solid var(--oshi-edge);border-right:2px dashed var(--line);border-radius:14px 0 0 14px}
+  background:color-mix(in srgb,var(--oshi) 22%,#fff);border-left:6px solid var(--oshi-edge);border-right:2px dashed var(--line);border-radius:16px 0 0 16px}
 .stub-m{font-size:12px;color:var(--muted);font-weight:700}
 .stub-d{font-size:36px;font-weight:900;line-height:1.05;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
 .stub-w{font-size:12px;font-weight:700}
@@ -69,14 +79,15 @@ button{cursor:pointer;-webkit-tap-highlight-color:transparent}
 .all-done{color:var(--muted)}
 .past-toggle{background:none;border:none;color:var(--muted);font-weight:700;padding:10px 0;font-size:14px}
 
-.empty{background:var(--paper);border-radius:14px;padding:32px 20px;text-align:center}
+.empty{background:var(--paper);border-radius:16px;padding:32px 20px;text-align:center;box-shadow:0 2px 10px rgba(27,33,75,.05)}
 .empty p{margin:0 0 20px;line-height:1.8;color:var(--muted);font-size:14px}
 .empty .btns{display:flex;flex-direction:column;gap:10px;align-items:center}
 .note{font-size:12px;color:var(--muted);text-align:center;margin-top:28px;line-height:1.6}
 
 /* 詳細 */
 .bar{display:flex;justify-content:space-between;align-items:center;margin:0 0 8px}
-.trip-head{--oshi:#8E4EC6;background:var(--paper);border-radius:14px;padding:26px 18px 18px;box-shadow:inset 0 8px 0 var(--oshi-edge);margin-bottom:16px}
+.trip-head{--oshi:var(--primary);background:var(--paper);border-radius:16px;padding:26px 18px 18px;
+  box-shadow:inset 0 8px 0 var(--oshi-edge),0 2px 10px rgba(27,33,75,.05);margin-bottom:16px}
 .dates{font-size:14px;font-weight:700;color:var(--muted);font-variant-numeric:tabular-nums;display:flex;align-items:baseline;gap:6px;flex-wrap:wrap}
 .dates b{font-size:30px;color:var(--ink);font-weight:900;letter-spacing:-.02em}
 .trip-head h1{font-size:21px;margin:8px 0 2px;font-weight:900;line-height:1.4;overflow-wrap:anywhere}
@@ -86,7 +97,7 @@ button{cursor:pointer;-webkit-tap-highlight-color:transparent}
 .prog-bar span{display:block;height:100%;background:var(--oshi);border-radius:99px;box-shadow:inset 0 0 0 1px var(--oshi-edge);transition:width .25s}
 .trip-memo{white-space:pre-wrap;font-size:13px;color:var(--muted);margin:10px 0 0;line-height:1.6}
 
-.items{list-style:none;margin:0;padding:0;background:var(--paper);border-radius:14px}
+.items{list-style:none;margin:0;padding:0;background:var(--paper);border-radius:16px;box-shadow:0 2px 10px rgba(27,33,75,.05)}
 .item{display:flex;align-items:flex-start;gap:14px;padding:14px;border-bottom:1px solid var(--line)}
 .item:last-child{border-bottom:none}
 .punch-btn{flex:none;width:44px;height:44px;border-radius:50%;border:2.5px solid var(--ink);background:var(--paper);
@@ -106,11 +117,22 @@ button{cursor:pointer;-webkit-tap-highlight-color:transparent}
 .item-name.placeholder{color:var(--muted);font-size:14px}
 .item-sub{display:block;font-size:13.5px;color:var(--ink);margin-top:2px;font-variant-numeric:tabular-nums}
 .item-memo{display:block;font-size:12.5px;color:var(--muted);margin-top:4px;white-space:pre-wrap;line-height:1.5}
-.add-item{width:100%;margin-top:12px;padding:14px;border:2px dashed var(--line);border-radius:14px;background:transparent;font-weight:700;color:var(--muted);font-size:15px}
+/* 手配の並べ替え。引っぱる方式にしないのは、マウスと指で挙動が割れ、
+   キーボードから使えなくなるため。上下のボタンならどれでも同じように動く。
+   指で押せるよう44pxの幅を確保しつつ、高さは行を伸ばさないよう半分ずつ。 */
+.item-move{flex:none;display:flex;flex-direction:column;gap:2px;margin-left:2px}
+.movebtn{width:44px;height:26px;border:none;border-radius:8px;background:transparent;
+  color:var(--muted);font-size:15px;line-height:1;padding:0;display:grid;place-items:center}
+.movebtn:disabled{opacity:.28}
+@media (hover:hover){.movebtn:not(:disabled):hover{background:var(--bg);color:var(--ink)}}
+
+.add-item{width:100%;margin-top:12px;padding:14px;border:2px dashed var(--line);border-radius:16px;background:transparent;font-weight:700;color:var(--muted);font-size:15px}
 
 /* シート */
 .overlay{position:fixed;inset:0;background:rgba(34,31,51,.45);display:flex;align-items:flex-end;justify-content:center;z-index:10}
-.sheet{background:var(--paper);width:100%;max-width:480px;max-height:92vh;overflow:auto;border-radius:18px 18px 0 0;
+/* 92vh は、携帯のアドレスバーが出ているぶんを見落とす。dvh は実際に見えている高さ。
+   読めないブラウザのために vh を先に置いて、読めるほうで上書きする。 */
+.sheet{background:var(--paper);width:100%;max-width:480px;max-height:92vh;max-height:92dvh;overflow:auto;border-radius:18px 18px 0 0;
   padding:20px 18px calc(18px + env(safe-area-inset-bottom));animation:up .22s ease}
 @keyframes up{from{transform:translateY(28px);opacity:.5}to{transform:none;opacity:1}}
 .sheet h2{margin:0 0 16px;font-size:18px;font-weight:900}
@@ -149,15 +171,15 @@ button{cursor:pointer;-webkit-tap-highlight-color:transparent}
 
 <script>
 const COLORS=[
-  {id:'red',name:'赤',hex:'#E5484D',on:'#fff'},
-  {id:'pink',name:'ピンク',hex:'#F76FA8',on:'#fff'},
-  {id:'orange',name:'オレンジ',hex:'#F7934C',on:'#fff'},
-  {id:'yellow',name:'黄',hex:'#F5C400',on:'#221F33'},
-  {id:'green',name:'緑',hex:'#30A46C',on:'#fff'},
-  {id:'sky',name:'水色',hex:'#3DB6E8',on:'#fff'},
-  {id:'blue',name:'青',hex:'#3E63DD',on:'#fff'},
-  {id:'purple',name:'紫',hex:'#8E4EC6',on:'#fff'},
-  {id:'white',name:'白',hex:'#FFFFFF',on:'#221F33'}
+  {id:'red',name:'珊瑚',hex:'#F2748A',on:'#1B214B'},
+  {id:'pink',name:'桃',hex:'#F88AC1',on:'#1B214B'},
+  {id:'orange',name:'橙',hex:'#FBA971',on:'#1B214B'},
+  {id:'yellow',name:'黄',hex:'#F7CE5B',on:'#1B214B'},
+  {id:'green',name:'緑',hex:'#5AC8A8',on:'#1B214B'},
+  {id:'sky',name:'水色',hex:'#45C8F9',on:'#1B214B'},
+  {id:'blue',name:'青',hex:'#6FA8FB',on:'#1B214B'},
+  {id:'purple',name:'藤',hex:'#A69CFA',on:'#1B214B'},
+  {id:'white',name:'白',hex:'#FFFFFF',on:'#1B214B'},
 ];
 const TYPES={ticket:'チケット',go:'行き',back:'帰り',hotel:'ホテル',other:'その他'};
 const STATUS={todo:'まだ',wait:'当落待ち',done:'手配済み'};
@@ -194,8 +216,8 @@ async function save(){
 /* ---------- 小道具 ---------- */
 const uid=()=>Math.random().toString(36).slice(2,10);
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const colorOf=id=>COLORS.find(c=>c.id===id)||COLORS[7];
-function oshiStyle(id){const c=colorOf(id);return `--oshi:${c.hex};--on-oshi:${c.on};--oshi-edge:${c.id==='white'?'#221F33':c.hex}`;}
+const colorOf=id=>COLORS.find(c=>c.id===id)||COLORS[5];
+function oshiStyle(id){const c=colorOf(id);return `--oshi:${c.hex};--on-oshi:${c.on};--oshi-edge:${c.id==='white'?'#1B214B':c.hex}`;}
 const pad=n=>String(n).padStart(2,'0');
 const ymd=d=>`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
 function parseD(s){const [y,m,d]=s.split('-').map(Number);return new Date(y,m-1,d);}
