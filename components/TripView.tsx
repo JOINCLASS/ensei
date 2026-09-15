@@ -3,7 +3,7 @@
 import { useRef, useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { STATUS, TYPES, itemLabel, itemSub, md, nextStatus, nights, oshiStyle, stats, wd } from '@/lib/logic'
-import { createItem, deleteItem, deleteTrip, duplicateTrip, setItemStatus, updateItem, updateTrip } from '@/lib/db'
+import { createItem, deleteItem, deleteTrip, duplicateTrip, reorderItems, setItemStatus, updateItem, updateTrip } from '@/lib/db'
 import { toast } from '@/lib/toast'
 import type { Item, Trip } from '@/lib/types'
 import { ItemSheet, type ItemDraft } from './ItemSheet'
@@ -108,6 +108,31 @@ export function TripView({ initialTrip }: { initialTrip: Trip }) {
     }
   }
 
+  /**
+   * 手配の並びを1つ動かす。
+   *
+   * 引っぱって動かす作りにしなかったのは、マウスと指で挙動が割れやすく、
+   * キーボードからも使えなくなるため。上下のボタンなら、PCでもスマホでも、
+   * 読み上げを使う人でも同じように動く。
+   */
+  async function move(id: string, by: -1 | 1) {
+    const from = trip.items.findIndex((i) => i.id === id)
+    const to = from + by
+    if (from < 0 || to < 0 || to >= trip.items.length) return
+
+    const before = trip
+    const next = [...trip.items]
+    ;[next[from], next[to]] = [next[to], next[from]]
+    setTrip((t) => ({ ...t, items: next }))
+
+    try {
+      await reorderItems(trip.id, next.map((i) => i.id))
+    } catch {
+      setTrip(before)
+      failed()
+    }
+  }
+
   /** ツアーの2公演目のように、同じ形で日付だけ違う旅を作る */
   async function copyTrip(d: TripDraft) {
     if (copying) return
@@ -153,7 +178,17 @@ export function TripView({ initialTrip }: { initialTrip: Trip }) {
       </section>
 
       <ul className="items" style={oshiStyle(trip.color)}>
-        {trip.items.map((i) => <ItemRow key={i.id} item={i} onCycle={cycle} onEdit={() => setSheet({ kind: 'item', item: i })} />)}
+        {trip.items.map((i, at) => (
+          <ItemRow
+            key={i.id}
+            item={i}
+            onCycle={cycle}
+            onEdit={() => setSheet({ kind: 'item', item: i })}
+            onMove={trip.items.length > 1 ? (by) => move(i.id, by) : undefined}
+            first={at === 0}
+            last={at === trip.items.length - 1}
+          />
+        ))}
       </ul>
       {!total && <p className="note">手配の項目がありません。下のボタンから追加できます。</p>}
       <button className="add-item" onClick={() => setSheet({ kind: 'item', item: null })}>＋ 手配を追加</button>
@@ -188,10 +223,16 @@ function ItemRow({
   item,
   onCycle,
   onEdit,
+  onMove,
+  first,
+  last,
 }: {
   item: Item
   onCycle: (i: Item, btn: HTMLButtonElement) => void
   onEdit: () => void
+  onMove?: (by: -1 | 1) => void
+  first: boolean
+  last: boolean
 }) {
   const btn = useRef<HTMLButtonElement>(null)
   const glyph = item.status === 'done' ? '✓' : item.status === 'wait' ? '待ち' : ''
@@ -219,6 +260,26 @@ function ItemRow({
         {sub && <span className="item-sub">{sub}</span>}
         {item.memo && <span className="item-memo">{item.memo}</span>}
       </button>
+      {onMove && (
+        <span className="item-move">
+          <button
+            className="movebtn"
+            onClick={() => onMove(-1)}
+            disabled={first}
+            aria-label={`${itemLabel(item)}を上へ`}
+          >
+            ↑
+          </button>
+          <button
+            className="movebtn"
+            onClick={() => onMove(1)}
+            disabled={last}
+            aria-label={`${itemLabel(item)}を下へ`}
+          >
+            ↓
+          </button>
+        </span>
+      )}
     </li>
   )
 }

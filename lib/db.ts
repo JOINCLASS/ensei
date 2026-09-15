@@ -87,6 +87,26 @@ export async function deleteItem(id: string) {
   check(await db().from('arrangements').delete().eq('id', id).select('id'))
 }
 
+/**
+ * 手配の並びを入れ替える。
+ *
+ * 1件ずつ更新すると、途中で失敗したときに順番が壊れた状態で残る。
+ * まとめて送って、全部そろって書き換わるようにする。
+ */
+export async function reorderItems(tripId: string, idsInOrder: string[]) {
+  // いまの中身をそのまま持ってきて position だけ差し替える。
+  // 1件ずつ更新すると、途中で失敗したときに順番が壊れたまま残る。
+  // 1回の書き込みにまとめれば、全部そろって変わるか、何も変わらないかになる。
+  const rows = check(await db().from('arrangements').select('*').eq('trip_id', tripId))
+  const byId = new Map(rows.map((r) => [r.id, r]))
+  const payload = idsInOrder.flatMap((id, position) => {
+    const row = byId.get(id)
+    return row ? [{ ...row, position }] : []
+  })
+  if (!payload.length) return
+  check(await db().from('arrangements').upsert(payload).select('id'))
+}
+
 export async function setItemStatus(id: string, status: Item['status']) {
   check(await db().from('arrangements').update({ status }).eq('id', id).select('id'))
 }
