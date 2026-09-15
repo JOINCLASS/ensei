@@ -12,6 +12,11 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
     supabase.from('trips').select(TRIP_SELECT).eq('id', id).maybeSingle(),
   ])
   if (!user) redirect('/login')
+
+  // 取れなかった（error）と、本当に無い（data が null）を分ける。
+  // まとめて notFound() にすると、404の「消された旅か、まちがったリンクか
+  // もしれません」が出る。消えていない旅を、消えたと告げることになる。
+  if (trip.error) throw new Error(`旅を取れませんでした: ${trip.error.message}`)
   if (!trip.data) notFound()
 
   return <TripView initialTrip={toTrip(trip.data)} />

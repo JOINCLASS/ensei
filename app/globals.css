@@ -1,5 +1,8 @@
 :root{
-  --bg:#EEEDF4; --paper:#FFFFFF; --ink:#221F33; --muted:#6E6A82; --line:#DCDAE6; --danger:#C0392B;
+  /* --muted は #6E6A82 だったが、--bg の上で 4.46:1 しかなく、
+     読みやすさの基準（4.5:1）をわずかに割っていた。4.59:1 に上げる。
+     RGBで(2,2,1)の差なので、見た目はほとんど変わらない。 */
+  --bg:#EEEDF4; --paper:#FFFFFF; --ink:#221F33; --muted:#6C6881; --line:#DCDAE6; --danger:#C0392B;
   --font:var(--font-zen-maru),'Zen Maru Gothic','Hiragino Maru Gothic ProN','Hiragino Sans','Noto Sans JP',system-ui,sans-serif;
 }
 *{box-sizing:border-box}
@@ -99,7 +102,9 @@ button{cursor:pointer;-webkit-tap-highlight-color:transparent}
 
 /* シート */
 .overlay{position:fixed;inset:0;background:rgba(34,31,51,.45);display:flex;align-items:flex-end;justify-content:center;z-index:10}
-.sheet{background:var(--paper);width:100%;max-width:480px;max-height:92vh;overflow:auto;border-radius:18px 18px 0 0;
+/* 92vh は、携帯のアドレスバーが出ているぶんを見落とす。dvh は実際に見えている高さ。
+   読めないブラウザのために vh を先に置いて、読めるほうで上書きする。 */
+.sheet{background:var(--paper);width:100%;max-width:480px;max-height:92vh;max-height:92dvh;overflow:auto;border-radius:18px 18px 0 0;
   padding:20px 18px calc(18px + env(safe-area-inset-bottom));animation:up .22s ease}
 @keyframes up{from{transform:translateY(28px);opacity:.5}to{transform:none;opacity:1}}
 .sheet h2{margin:0 0 16px;font-size:18px;font-weight:900}

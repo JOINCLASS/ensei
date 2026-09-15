@@ -27,7 +27,11 @@
     "stats": "node --env-file=.env.local scripts/stats.mjs",
     "test:install": "node scripts/install.mjs",
     "test:signup": "node scripts/signup.mjs",
-    "test:rls": "node scripts/rls.mjs"
+    "test:rls": "node scripts/rls.mjs",
+    "test:forms": "node scripts/forms.mjs",
+    "test:offline": "node scripts/offline.mjs",
+    "test:a11y": "node scripts/a11y.mjs",
+    "test:google": "node scripts/google.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.7",
@@ -38,6 +42,7 @@
     "server-only": "^0.0.1"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.13.0",
     "@playwright/test": "^1.63.0",
     "@types/node": "^22.20.2",
     "@types/pngjs": "^6.0.5",

@@ -23,6 +23,10 @@ export const viewport: Viewport = {
   initialScale: 1,
   viewportFit: 'cover',
   themeColor: '#EEEDF4',
+  // キーボードが出たら、その分だけ画面を詰める。
+  // Android/Chrome はこれだけで解決する。iOS はまだ効かないので、
+  // components/Sheet.tsx の visualViewport 側で受けている。
+  interactiveWidget: 'resizes-content',
 }
 
 /**

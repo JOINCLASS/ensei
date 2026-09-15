@@ -13,5 +13,11 @@ export default async function Page() {
   ])
   if (!user) redirect('/login')
 
+  // 取れなかったことを空扱いにしない。
+  // ?? [] で流すと「遠征の予定を登録すると…」という、まだ何も無い人向けの
+  // 画面が出る。旅が全部消えたようにしか見えない。
+  // 投げれば error.tsx が受けて「もう一度読み込む」を出す。
+  if (trips.error) throw new Error(`旅の一覧を取れませんでした: ${trips.error.message}`)
+
   return <ListView initialTrips={(trips.data ?? []).map(toTrip)} />
 }

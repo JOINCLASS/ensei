@@ -16,7 +16,12 @@ import { InstallSheet, useInstalled } from './InstallSheet'
 export function ListView({ initialTrips }: { initialTrips: Trip[] }) {
   const router = useRouter()
   const [trips, setTrips] = useState(initialTrips)
-  const [showPast, setShowPast] = useState(false)
+  // これからの旅が1件も無いときは、最初から開いておく。
+  // 閉じたままだと、過去の旅だけを登録した人の画面が空に見えて、
+  // 保存されなかったのかと思わせる。
+  const [showPast, setShowPast] = useState(
+    () => initialTrips.length > 0 && initialTrips.every(isPast),
+  )
   const [sheet, setSheet] = useState(false)
   const [invite, setInvite] = useState(false)
   const [install, setInstall] = useState(false)
