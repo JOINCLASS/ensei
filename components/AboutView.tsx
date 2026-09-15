@@ -87,15 +87,20 @@ export function AboutView({ signedIn }: { signedIn: boolean }) {
       <p className="summary" style={{ marginTop: 24 }}><b>ログインのしかた</b></p>
       <section className="empty" style={{ textAlign: 'left' }}>
         <p style={{ textAlign: 'left' }}>
-          メールアドレスを入れると6桁のコードが届くので、それを入れてログインします。
-          パスワードを覚える必要はありません。
+          入り方は2つあります。<b>Googleで続ける</b>か、
+          メールアドレスに届く<b>6桁のコード</b>を入れるかです。
+          どちらでもパスワードは要りません。
+        </p>
+        <p style={{ textAlign: 'left' }}>
+          同じメールアドレスなら、どちらで入っても同じ場所に入ります。
+          旅が2つに分かれることはありません。
         </p>
         <p style={{ textAlign: 'left' }}>
           <b>一度ログインすれば、ログアウトするまで入ったままです。</b>
           毎回コードを受け取る必要はありません。
         </p>
         <p style={{ textAlign: 'left' }}>
-          コードが必要になるのは、次のときだけです。<br />
+          コードが必要になるのは、メールで入る場合の、次のときだけです。<br />
           ・はじめて使うとき<br />
           ・自分でログアウトしたとき<br />
           ・別の端末やブラウザで開いたとき<br />
@@ -117,6 +122,10 @@ export function AboutView({ signedIn }: { signedIn: boolean }) {
         <p style={{ textAlign: 'left' }}>
           ログイン用のメールを送るために、メールアドレスを配信サービス（Resend）に渡します。
           それ以外の用途には使いません。広告にも使いません。
+        </p>
+        <p style={{ textAlign: 'left' }}>
+          Googleで入る場合、Googleは「そのアドレスの本人かどうか」だけを確かめて返します。
+          こちらからGoogleに渡すものはありません。<b>旅の中身はGoogleには見えません。</b>
         </p>
       </section>
 
