@@ -56,15 +56,17 @@ await tap(p, 'このアプリについて')
 await p.waitForURL(`${APP}/about`, { timeout: 20000 })
 await p.waitForTimeout(800)
 ok(await p.locator('text=あなたのデータは、あなたにしか見えません').isVisible(), '説明が出ている')
-ok(await p.getByRole('button', { name: '内容を書き出す', exact: true }).isVisible(), '書き出しボタンがある')
+for (const name of ['読めるかたちで（テキスト）', '表計算で開ける形で（CSV）', 'そっくり残す形で（JSON）']) {
+  ok(await p.getByRole('button', { name, exact: true }).isVisible(), `書き出しボタンがある：${name}`)
+}
 ok(await p.getByRole('button', { name: '退会する', exact: true }).isVisible(), '退会ボタンがある')
 
 step('4. 内容を書き出す')
 const dl = p.waitForEvent('download', { timeout: 20000 })
-await tap(p, '内容を書き出す')
+await tap(p, '読めるかたちで（テキスト）')
 const file = await dl
 const text = (await (await import('node:fs/promises')).readFile(await file.path(), 'utf8'))
-ok(file.suggestedFilename() === 'ensei.txt', 'ファイル名が ensei.txt', file.suggestedFilename())
+ok(file.suggestedFilename() === 'tehaimatome.txt', 'ファイル名が tehaimatome.txt', file.suggestedFilename())
 ok(text.includes('ASIA TOUR 大阪公演'), '旅の題名が入っている')
 ok(/チケット：(まだ|当落待ち|手配済み)/.test(text), '手配の状態が入っている')
 ok(text.includes('のぞみ21号'), '便名も入っている')

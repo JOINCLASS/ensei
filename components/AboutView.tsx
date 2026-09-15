@@ -5,39 +5,25 @@ import { useRouter } from 'next/navigation'
 import { deleteAccount } from '@/lib/account'
 import { fetchTrips } from '@/lib/db'
 import { createClient } from '@/lib/supabase/client'
-import { itemLabel, itemSub, md, nights, STATUS, TYPES } from '@/lib/logic'
+import { build, FILENAME, type Format } from '@/lib/export'
 import { toast } from '@/lib/toast'
 import { DeleteButton } from './Sheet'
 
 /** 参照HTMLにない画面。既存のトークンと部品だけで組む。 */
 export function AboutView({ signedIn }: { signedIn: boolean }) {
   const router = useRouter()
-  const [busy, setBusy] = useState(false)
+  // どのボタンを押したかで文言を変えるため、真偽ではなく種類を持つ
+  const [busy, setBusy] = useState<false | Format | 'delete'>(false)
 
-  /** 入力した内容を、そのまま読めるテキストにして書き出す */
-  async function exportData() {
+  /** 入力した内容を手元に持ち出す。データベースに自動バックアップが無いので、これが唯一の保険 */
+  async function exportData(format: Format) {
     if (busy) return
-    setBusy(true)
+    setBusy(format)
     try {
-      const trips = await fetchTrips()
-      const lines = trips.flatMap((t) => {
-        const n = nights(t.start, t.end)
-        return [
-          `■ ${t.title}`,
-          `　${t.place || '行き先なし'}　${md(t.start)}〜${md(t.end)}　${n > 0 ? `${n}泊` : '日帰り'}`,
-          ...(t.memo ? [`　メモ：${t.memo}`] : []),
-          ...t.items.map((i) => {
-            const sub = itemSub(i)
-            return `　・${itemLabel(i)}：${STATUS[i.status]}${i.name ? `　${i.name}` : ''}${sub ? `　${sub}` : ''}${i.memo ? `　（${i.memo}）` : ''}`
-          }),
-          '',
-        ]
-      })
-      const text = ['手配まとめ　書き出し', `旅 ${trips.length}件`, '', ...lines].join('\n')
-      const url = URL.createObjectURL(new Blob([text], { type: 'text/plain;charset=utf-8' }))
+      const url = URL.createObjectURL(build(await fetchTrips(), format))
       const a = document.createElement('a')
       a.href = url
-      a.download = 'ensei.txt'
+      a.download = FILENAME[format]
       a.click()
       URL.revokeObjectURL(url)
       toast('書き出しました')
@@ -49,7 +35,7 @@ export function AboutView({ signedIn }: { signedIn: boolean }) {
 
   async function remove() {
     if (busy) return
-    setBusy(true)
+    setBusy('delete')
     const res = await deleteAccount()
     if (res.error) {
       setBusy(false)
@@ -173,10 +159,19 @@ export function AboutView({ signedIn }: { signedIn: boolean }) {
         <>
           <p className="summary" style={{ marginTop: 24 }}><b>持ち出す</b></p>
           <section className="empty">
-            <p>入力した内容を、読めるかたちで<br />ファイルに書き出せます。</p>
-            <div className="btns">
-              <button className="btn ghost" onClick={exportData} disabled={busy}>
-                {busy ? '書き出しています…' : '内容を書き出す'}
+            <p>
+              入力した内容を、ファイルに書き出せます。<br />
+              <b>ときどき書き出して、手元にも残してください。</b>
+            </p>
+            <div className="btns" style={{ flexDirection: 'column' }}>
+              <button className="btn ghost wide" onClick={() => exportData('text')} disabled={!!busy}>
+                {busy === 'text' ? '書き出しています…' : '読めるかたちで（テキスト）'}
+              </button>
+              <button className="btn ghost wide" onClick={() => exportData('csv')} disabled={!!busy}>
+                {busy === 'csv' ? '書き出しています…' : '表計算で開ける形で（CSV）'}
+              </button>
+              <button className="btn ghost wide" onClick={() => exportData('json')} disabled={!!busy}>
+                {busy === 'json' ? '書き出しています…' : 'そっくり残す形で（JSON）'}
               </button>
             </div>
           </section>

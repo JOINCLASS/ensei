@@ -33,7 +33,8 @@
     "test:a11y": "node scripts/a11y.mjs",
     "test:google": "node scripts/google.mjs",
     "test:duplicate": "node scripts/duplicate.mjs",
-    "test:reorder": "node scripts/reorder.mjs"
+    "test:reorder": "node scripts/reorder.mjs",
+    "test:export": "node scripts/export.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.7",

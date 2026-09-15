@@ -2,7 +2,7 @@
 
 import { useRef, useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
-import { STATUS, TYPES, itemLabel, itemSub, md, nextStatus, nights, oshiStyle, stats, wd } from '@/lib/logic'
+import { STATUS, itemLabel, itemSub, md, nextStatus, nights, oshiStyle, stats, wd } from '@/lib/logic'
 import { createItem, deleteItem, deleteTrip, duplicateTrip, reorderItems, setItemStatus, updateItem, updateTrip } from '@/lib/db'
 import { toast } from '@/lib/toast'
 import type { Item, Trip } from '@/lib/types'
@@ -237,6 +237,10 @@ function ItemRow({
   const btn = useRef<HTMLButtonElement>(null)
   const glyph = item.status === 'done' ? '✓' : item.status === 'wait' ? '待ち' : ''
   const sub = itemSub(item)
+  // 「その他」は、付けた名前がそのまま種類の名前になる（一覧のカードと同じ扱い）。
+  // ここだけ TYPES を直に出していたので、レンタカーと入れても「その他」のままだった。
+  const label = itemLabel(item)
+  const namedHere = item.type === 'other' && !!item.name
 
   return (
     <li className={`item s-${item.status}`}>
@@ -251,12 +255,12 @@ function ItemRow({
       </button>
       <button className="item-main" onClick={onEdit}>
         <span className="item-head">
-          <span className="item-type">{TYPES[item.type]}</span>
+          <span className="item-type">{label}</span>
           <span className={`tag tag-${item.status}`}>{STATUS[item.status]}</span>
         </span>
-        {item.name
-          ? <span className="item-name">{item.name}</span>
-          : (!sub && <span className="item-name placeholder">タップして詳細を入力</span>)}
+        {/* 見出しに出したものを、すぐ下で繰り返さない */}
+        {item.name && !namedHere && <span className="item-name">{item.name}</span>}
+        {!item.name && !sub && <span className="item-name placeholder">タップして詳細を入力</span>}
         {sub && <span className="item-sub">{sub}</span>}
         {item.memo && <span className="item-memo">{item.memo}</span>}
       </button>
