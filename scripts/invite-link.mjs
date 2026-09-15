@@ -30,14 +30,17 @@ ok(/\/invite\/[0-9a-f-]{36}$/.test(url), '招待リンクが発行される', ur
 ok(await host.locator('text=旅の中身は共有されません').isVisible(), '共有されない旨が書いてある')
 await tap(host, 'とじる')
 
-step('2. 招待されていない人は登録できない')
+// 招待制は廃止した（2026-09-15）。招待リンクは「友だちに教える近道」であって、
+// 入口を閉じるためのものではなくなった。リンクが無くても登録できるのが今の意図。
+// 閉じたいときは INVITE_ONLY=true に戻す（そちらは scripts/signup.mjs で見ている）。
+step('2. 招待されていなくても登録できる（招待制は廃止した）')
 const ctxX = await b.newContext({ viewport: VP })
 const stranger = await ctxX.newPage()
 await stranger.goto(`${APP}/login`)
-await stranger.fill('input[name=email]', `nope+${Date.now()}@example.com`)
+await stranger.fill('input[name=email]', `nope+${Date.now()}@example.com`.toLowerCase())
 await tap(stranger, 'コードを送る')
-await stranger.waitForTimeout(2500)
-ok((await stranger.locator('.err').textContent())?.includes('登録されていません'), 'リンク無しでは断られる')
+await stranger.waitForSelector('input[name=code]', { timeout: 15000 }).catch(() => null)
+ok(await stranger.locator('input[name=code]').count() > 0, 'リンク無しでもコード入力まで進める')
 await ctxX.close()
 
 step('3. 渡された人がリンクを開く')

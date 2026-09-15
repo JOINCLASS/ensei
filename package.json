@@ -25,7 +25,9 @@
     "feedback": "node scripts/feedback.mjs",
     "account": "node scripts/account.mjs",
     "stats": "node --env-file=.env.local scripts/stats.mjs",
-    "test:install": "node scripts/install.mjs"
+    "test:install": "node scripts/install.mjs",
+    "test:signup": "node scripts/signup.mjs",
+    "test:rls": "node scripts/rls.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.7",

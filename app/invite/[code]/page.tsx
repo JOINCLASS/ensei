@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation'
 import { LoginForm } from '@/components/LoginForm'
 import { checkInvite } from '@/lib/invites'
 import { createClient } from '@/lib/supabase/server'
+import { inviteOnly } from '@/lib/gate'
 
 const MESSAGE = {
   used: 'この招待はすでに使われています。',
@@ -29,5 +30,5 @@ export default async function Page({ params }: { params: Promise<{ code: string 
     )
   }
 
-  return <LoginForm inviteCode={code} />
+  return <LoginForm inviteCode={code} inviteOnly={inviteOnly()} />
 }

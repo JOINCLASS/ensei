@@ -147,10 +147,12 @@ enable_refresh_token_rotation = true
 # Allows refresh tokens to be reused after expiry, up to the specified interval in seconds.
 # Requires enable_refresh_token_rotation = true.
 refresh_token_reuse_interval = 10
-# 新規登録を閉じる。本番と同じ設定にしておかないと、
-# 「本番でだけログインできない」類の不具合をE2Eが見逃す。
-# テストのユーザーは管理APIで作る（scripts/lib.mjs）。
-enable_signup = false
+# 新規登録は開けておく。招待制にするかどうかは、Supabaseではなく
+# アプリの INVITE_ONLY で決める（lib/gate.ts）。
+# ここで閉じるとアプリ側から切り替えられず、ダッシュボードを触るまで戻せない。
+# 本番と同じ設定にしておかないと「本番でだけログインできない」類の不具合を
+# E2Eが見逃すので、ローカルもそろえる。
+enable_signup = true
 # Allow/disallow anonymous sign-ins to your project.
 enable_anonymous_sign_ins = false
 # Allow/disallow testing manual linking of accounts
@@ -352,12 +354,25 @@ project_id = "qxyubrqtelvciwoszjlc"
 # あちらは「メール認証そのもの」を切る設定で、既存ユーザーもログインできなくなる。
 
 # 本番のアプリのURL。ローカル開発用の値を持ち込まない。
+# 招待制にするかどうかはアプリの INVITE_ONLY で決めるので、ここは開けておく。
+# これまでは false で、その設定はダッシュボード側にしか無く、
+# config push の管理外だった（＝コードからは戻せなかった）。
+enable_signup = true
+
 site_url = "https://tehaimatome.com"
+# Googleから戻る先は /auth/callback。末尾の ** が無いと弾かれる。
 # 旧URLも当分は生かしておく。すでに配ったリンクを死なせないため。
 additional_redirect_urls = [
   "https://tehaimatome.com",
+  "https://tehaimatome.com/**",
   "https://tehai-matome.vercel.app",
+  "https://tehai-matome.vercel.app/**",
   "https://ensei-nu.vercel.app",
+  # Vercelのプレビュー（デプロイごとにURLが変わる）
+  "https://tehai-matome-*-githubkyos-projects.vercel.app/**",
+  # 開発機
+  "http://localhost:3000/**",
+  "http://localhost:3001/**",
 ]
 
 [remotes.production.auth.rate_limit]

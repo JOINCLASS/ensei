@@ -73,12 +73,16 @@ function clearFlowCookies() {
   }
 }
 
-export function LoginForm({ inviteCode }: { inviteCode?: string } = {}) {
+export function LoginForm({
+  inviteCode,
+  inviteOnly = false,
+  initialError,
+}: { inviteCode?: string; inviteOnly?: boolean; initialError?: string } = {}) {
   const router = useRouter()
   const [step, setStep] = useState<'email' | 'code'>('email')
   const [email, setEmail] = useState('')
   const [code, setCode] = useState('')
-  const [err, setErr] = useState('')
+  const [err, setErr] = useState(initialError ?? '')
   const [busy, setBusy] = useState(false)
 
   /**
@@ -121,6 +125,22 @@ export function LoginForm({ inviteCode }: { inviteCode?: string } = {}) {
       })
   }, [router])
 
+  /** Googleの画面へ送り出す。戻り先は /auth/callback（そこでセッションを立てる） */
+  async function withGoogle() {
+    if (busy) return
+    setBusy(true)
+    setErr('')
+    const { error } = await createClient().auth.signInWithOAuth({
+      provider: 'google',
+      options: { redirectTo: `${window.location.origin}/auth/callback` },
+    })
+    // 成功した場合はGoogleへ移動するので、ここには戻ってこない
+    if (error) {
+      setBusy(false)
+      setErr('Googleに繋げませんでした。もう一度お試しください。')
+    }
+  }
+
   async function sendCode() {
     const value = email.trim()
     if (!value) return setErr('メールアドレスを入れてください。')
@@ -136,18 +156,18 @@ export function LoginForm({ inviteCode }: { inviteCode?: string } = {}) {
       }
     }
 
-    // 本番は新規登録を閉じている。shouldCreateUser を true にすると、
-    // 既に登録済みの人でも「登録しようとした」と見なされて弾かれる。
+    // 招待制のときは、その場で作らせない（招待リンク側で先に作ってある）。
+    // 招待制でないときに false のままだと、はじめての人が永遠に登録できない。
     const { error } = await createClient().auth.signInWithOtp({
       email: value,
-      options: { shouldCreateUser: false },
+      options: { shouldCreateUser: !inviteOnly },
     })
     setBusy(false)
     if (error) {
       // 未登録のアドレスと、それ以外の失敗を書き分ける
       const notRegistered = /signup|not found|disabled/i.test(error.message)
       return setErr(
-        notRegistered
+        notRegistered && inviteOnly
           ? 'このメールアドレスは登録されていません。招待を受けとったアドレスをお確かめください。'
           : 'コードを送れませんでした。もう一度お試しください。',
       )
@@ -185,10 +205,30 @@ export function LoginForm({ inviteCode }: { inviteCode?: string } = {}) {
         {step === 'email' ? (
           <>
             {inviteCode ? (
-              <p>招待されています。<br />パスワードはありません。<br />メールアドレスを入れると、<br />6桁のコードをお送りします。</p>
-            ) : (
+              <p>招待されています。<br />パスワードはありません。<br />下から始められます。</p>
+            ) : inviteOnly ? (
               <p>このアプリは招待制です。<br />パスワードはありません。<br />登録されたメールアドレスに、<br />6桁のコードをお送りします。</p>
+            ) : (
+              <p>パスワードはありません。<br />Googleで、すぐに始められます。</p>
             )}
+
+            {/*
+              招待制に戻したときは出さない。Supabase側の登録は開けたままなので、
+              ここを出すと招待の判定を素通りできてしまう。
+            */}
+            {!inviteOnly && (
+              <>
+                <div className="btns">
+                  <button className="btn" onClick={withGoogle} disabled={busy}>
+                    {busy ? 'お待ちください…' : 'Googleで続ける'}
+                  </button>
+                </div>
+                <p className="summary" style={{ marginTop: 20 }}>
+                  または、メールに6桁のコードを送ります
+                </p>
+              </>
+            )}
+
             <label className="field" style={{ textAlign: 'left' }}>
               <span>メールアドレス</span>
               <input
@@ -203,7 +243,7 @@ export function LoginForm({ inviteCode }: { inviteCode?: string } = {}) {
             </label>
             <p className="err" hidden={!err}>{err}</p>
             <div className="btns">
-              <button className="btn" onClick={sendCode} disabled={busy}>
+              <button className={inviteOnly ? 'btn' : 'btn ghost'} onClick={sendCode} disabled={busy}>
                 {busy ? '送っています…' : inviteCode ? 'はじめる' : 'コードを送る'}
               </button>
             </div>
