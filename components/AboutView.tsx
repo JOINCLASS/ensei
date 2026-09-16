@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { deleteAccount } from '@/lib/account'
+import { setRemind } from '@/lib/notify-pref'
 import { fetchTrips } from '@/lib/db'
 import { createClient } from '@/lib/supabase/client'
 import { build, FILENAME, type Format } from '@/lib/export'
@@ -12,10 +13,11 @@ import { InviteSheet } from './InviteSheet'
 import { InstallSheet, useInstalled } from './InstallSheet'
 
 /** 参照HTMLにない画面。既存のトークンと部品だけで組む。 */
-export function AboutView({ signedIn }: { signedIn: boolean }) {
+export function AboutView({ signedIn, remind = true }: { signedIn: boolean; remind?: boolean }) {
   const router = useRouter()
   // どのボタンを押したかで文言を変えるため、真偽ではなく種類を持つ
   const [busy, setBusy] = useState<false | Format | 'delete'>(false)
+  const [on, setOn] = useState(remind)
   const [invite, setInvite] = useState(false)
   const [install, setInstall] = useState(false)
   // ホーム画面から開いている人には、追加の案内を出さない
@@ -71,6 +73,31 @@ export function AboutView({ signedIn }: { signedIn: boolean }) {
         <>
       {signedIn && (
         <>
+          <p className="summary" style={{ marginTop: 24 }}><b>お知らせ</b></p>
+          <section className="empty" style={{ textAlign: 'left' }}>
+            <p style={{ textAlign: 'left' }}>
+              出発の<b>7日前</b>と<b>前日</b>に、まだ済んでいない手配があれば
+              メールでお知らせします。済んでいれば送りません。
+            </p>
+            <div className="btns">
+              <button
+                className={on ? 'btn wide' : 'btn ghost wide'}
+                aria-pressed={on}
+                onClick={async () => {
+                  const next = !on
+                  setOn(next)
+                  const res = await setRemind(next)
+                  if (res.error) {
+                    setOn(!next)
+                    toast(res.error)
+                  }
+                }}
+              >
+                {on ? 'お知らせを受け取る（オン）' : 'お知らせを受け取らない（オフ）'}
+              </button>
+            </div>
+          </section>
+
           <p className="summary" style={{ marginTop: 24 }}><b>できること</b></p>
           <section className="empty">
             <div className="btns">

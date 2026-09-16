@@ -37,7 +37,8 @@
     "test:export": "node scripts/export.mjs",
     "x-assets": "node scripts/x-assets.mjs",
     "x-copy": "node scripts/x-copy.mjs",
-    "test:sw": "node scripts/sw.mjs"
+    "test:sw": "node scripts/sw.mjs",
+    "test:remind": "node scripts/remind.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.7",
